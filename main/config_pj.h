@@ -19,19 +19,24 @@
 #define BLINK_GPIO CONFIG_BLINK_GPIO
 #define hw_config 1
 #define MAIN_APP_DEFAULT_CONF 0
-#define DEF_DHCP 0
+#define DEF_DHCP 1
 //#define OUT_POW_EN 4
 #define size_1k_buff 24
 
 #define NTP_APDATE 20
 
 //*****************************************1wire termo  port*******************************************
-#define MAIN_APP_OWB_H_ 0
+#define MAIN_APP_OWB_H_ 1
 
 #if  MAIN_APP_OWB_H_ == 1
-
+#define max_sensor 4
 #include "..\main\termo\app_owb.h"
-#define OW_DEBUG 1
+
+//#define OW_DEBUG 0
+//#define PHY_DEBUG 1
+
+
+
 #endif
 
 
@@ -52,11 +57,11 @@
 
 
 
-#define out_port_n 3
+#define out_port_n 2
 
 #define P_O0 14
 #define P_O1 12
-#define P_O2 4
+//#define P_O2 4
 
 
 //*****************************************SMTP OUTPUT*************************************************

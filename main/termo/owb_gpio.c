@@ -26,6 +26,7 @@
 /**
  * @file
  */
+#include "config_pj.h"
 #if  MAIN_APP_OWB_H_ == 1
 
 #include <stddef.h>
@@ -51,7 +52,7 @@ static const char * TAG = "owb_gpio";
 //
 // For the debug GPIO the idle state is low and made high before the 1-wire sample
 // point and low again after the sample point
-#undef PHY_DEBUG
+//#undef PHY_DEBUG
 
 #ifdef PHY_DEBUG
 // Update these defines to a pin that you can access
@@ -98,6 +99,7 @@ static void _us_delay(uint32_t time_us)
  */
 static owb_status _reset(const OneWireBus * bus, bool * is_present)
 {
+	printf("1wire reset\n\r");
     bool present = false;
     portMUX_TYPE timeCriticalMutex = portMUX_INITIALIZER_UNLOCKED;
     portENTER_CRITICAL(&timeCriticalMutex);
@@ -105,10 +107,12 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
     owb_gpio_driver_info *i = info_from_bus(bus);
 
     gpio_set_direction(i->gpio, GPIO_MODE_OUTPUT);
+    gpio_set_level(i->gpio, 1);  // Reset the output level for the next output
+
     _us_delay(bus->timing->G);
     gpio_set_level(i->gpio, 0);  // Drive DQ low
     _us_delay(bus->timing->H);
-    gpio_set_direction(i->gpio, GPIO_MODE_INPUT); // Release the bus
+ ////   gpio_set_direction(i->gpio, GPIO_MODE_INPUT); // Release the bus
     gpio_set_level(i->gpio, 1);  // Reset the output level for the next output
     _us_delay(bus->timing->I);
 
@@ -144,6 +148,55 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
     return OWB_STATUS_OK;
 }
 
+
+//static owb_status _reset(const OneWireBus * bus, bool * is_present)
+//{
+//    bool present = false;
+//    portMUX_TYPE timeCriticalMutex = portMUX_INITIALIZER_UNLOCKED;
+//    portENTER_CRITICAL(&timeCriticalMutex);
+//
+//    owb_gpio_driver_info *i = info_from_bus(bus);
+//
+//    gpio_set_direction(i->gpio, GPIO_MODE_OUTPUT);
+//    _us_delay(bus->timing->G);
+//    gpio_set_level(i->gpio, 0);  // Drive DQ low
+//    _us_delay(bus->timing->H);
+// ////   gpio_set_direction(i->gpio, GPIO_MODE_INPUT); // Release the bus
+//    gpio_set_level(i->gpio, 1);  // Reset the output level for the next output
+//    _us_delay(bus->timing->I);
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 1);
+//#endif
+//
+//    int level1 = gpio_get_level(i->gpio);
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 0);
+//#endif
+//
+//    _us_delay(bus->timing->J);   // Complete the reset sequence recovery
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 1);
+//#endif
+//
+//    int level2 = gpio_get_level(i->gpio);
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 0);
+//#endif
+//
+//    portEXIT_CRITICAL(&timeCriticalMutex);
+//
+//    present = (level1 == 0) && (level2 == 1);   // Sample for presence pulse from slave
+//    ESP_LOGD(TAG, "reset: level1 0x%x, level2 0x%x, present %d", level1, level2, present);
+//
+//    *is_present = present;
+//
+//    return OWB_STATUS_OK;
+//}
+
 /**
  * @brief Send a 1-Wire write bit, with recovery time.
  * @param[in] bus Initialised bus instance.
@@ -151,6 +204,7 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
  */
 static void _write_bit(const OneWireBus * bus, int bit)
 {
+	printf("1wire write bit\n\r");
     int delay1 = bit ? bus->timing->A : bus->timing->C;
     int delay2 = bit ? bus->timing->B : bus->timing->D;
     owb_gpio_driver_info *i = info_from_bus(bus);
@@ -167,6 +221,26 @@ static void _write_bit(const OneWireBus * bus, int bit)
     portEXIT_CRITICAL(&timeCriticalMutex);
 }
 
+//static void _write_bit(const OneWireBus * bus, int bit)
+//{
+//    int delay1 = bit ? bus->timing->A : bus->timing->C;
+//    int delay2 = bit ? bus->timing->B : bus->timing->D;
+//    owb_gpio_driver_info *i = info_from_bus(bus);
+//
+//    portMUX_TYPE timeCriticalMutex = portMUX_INITIALIZER_UNLOCKED;
+//    portENTER_CRITICAL(&timeCriticalMutex);
+//
+//    gpio_set_direction(i->gpio, GPIO_MODE_OUTPUT);
+//    gpio_set_level(i->gpio, 0);  // Drive DQ low
+//    _us_delay(delay1);
+//    gpio_set_level(i->gpio, 1);  // Release the bus
+//    _us_delay(delay2);
+//
+//    portEXIT_CRITICAL(&timeCriticalMutex);
+//}
+
+
+
 /**
  * @brief Read a bit from the 1-Wire bus and return the value, with recovery time.
  * @param[in] bus Initialised bus instance.
@@ -174,6 +248,7 @@ static void _write_bit(const OneWireBus * bus, int bit)
 static int _read_bit(const OneWireBus * bus)
 {
     int result = 0;
+	printf("1wire read bit\n\r");
     owb_gpio_driver_info *i = info_from_bus(bus);
 
     portMUX_TYPE timeCriticalMutex = portMUX_INITIALIZER_UNLOCKED;
@@ -204,6 +279,42 @@ static int _read_bit(const OneWireBus * bus)
 
     return result;
 }
+
+//
+//static int _read_bit(const OneWireBus * bus)
+//{
+//    int result = 0;
+//    owb_gpio_driver_info *i = info_from_bus(bus);
+//
+//    portMUX_TYPE timeCriticalMutex = portMUX_INITIALIZER_UNLOCKED;
+//    portENTER_CRITICAL(&timeCriticalMutex);
+//
+//    gpio_set_direction(i->gpio, GPIO_MODE_OUTPUT);
+//    gpio_set_level(i->gpio, 0);  // Drive DQ low
+//    _us_delay(bus->timing->A);
+//    gpio_set_direction(i->gpio, GPIO_MODE_INPUT); // Release the bus
+//    gpio_set_level(i->gpio, 1);  // Reset the output level for the next output
+//    _us_delay(bus->timing->E);
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 1);
+//#endif
+//
+//    int level = gpio_get_level(i->gpio);
+//
+//#ifdef PHY_DEBUG
+//    gpio_set_level(PHY_DEBUG_GPIO, 0);
+//#endif
+//
+//    _us_delay(bus->timing->F);   // Complete the timeslot and 10us recovery
+//
+//    portEXIT_CRITICAL(&timeCriticalMutex);
+//
+//    result = level & 0x01;
+//
+//    return result;
+//}
+//
 
 /**
  * @brief Write 1-Wire data byte.

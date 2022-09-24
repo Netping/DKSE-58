@@ -189,7 +189,7 @@ void start_task(void *pvParameters) {
 	xTaskCreate(&nvs_task, "nvs_task", 4096, NULL, 5, NULL);
 
 #if MAIN_APP_OWB_H_ == 1
-	xTaskCreate(&app_owb, "app_owb", 2024, NULL, 10, NULL);
+	xTaskCreate(&app_owb, "app_owb", 4096, NULL, 10, NULL);
 #endif
 
 #if MAIN_APP_IN_PORT == 1

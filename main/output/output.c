@@ -18,11 +18,11 @@
 
 #define get_name(x) #x
 
-uint8_t PORT_O[out_port_n] = { P_O0, P_O1, P_O2 };
+uint8_t PORT_O[out_port_n] = { P_O0, P_O1 };
 
 output_port_t OUT_PORT[out_port_n];
 
-uint8_t  polar_snmp[out_port_n];
+uint8_t polar_snmp[out_port_n];
 
 static void char2_to_hex(char *in, uint8_t *out, uint32_t len) {
 	//	Bcd_To_Hex((unsigned char *)in, (unsigned char *)out, len);
@@ -440,12 +440,15 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 				} else {
 
 					if (req->uri[14] == '1') {
-						printf("\n\r17_18 %x %x \n\r", req->uri[17],req->uri[18]);
+						printf("\n\r17_18 %x %x \n\r", req->uri[17],
+								req->uri[18]);
 						if (req->uri[17] == 0) {
 
 							OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
 									(req->uri[16] - 0x30) * 1000;
-							printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
+							printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s,
+									OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay,
+									req->uri[16], req->uri[17]);
 							set_outport((uint8_t) (req->uri[12] - 0x30), 3);
 							sprintf(buf, "out_result('ok')");
 							fault = 0;
@@ -454,7 +457,9 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 								OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
 										((req->uri[16] - 0x30) * 10
 												+ (req->uri[17] - 0x30)) * 1000;
-								printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
+								printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s,
+										OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay,
+										req->uri[16], req->uri[17]);
 								set_outport((uint8_t) (req->uri[12] - 0x30), 3);
 								sprintf(buf, "out_result('ok')");
 								fault = 0;
@@ -464,16 +469,20 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 						if (req->uri[17] == 0) {
 							OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
 									(req->uri[16] - 0x30) * 1000;
-							printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
+							printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s,
+									OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay,
+									req->uri[16], req->uri[17]);
 							set_outport((uint8_t) (req->uri[12] - 0x30), 4);
 							sprintf(buf, "out_result('ok')");
 							fault = 0;
 						} else {
-							if (req->uri[18] ==0) {
+							if (req->uri[18] == 0) {
 								OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
 										((req->uri[16] - 0x30) * 10
 												+ (req->uri[17] - 0x30)) * 1000;
-								printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
+								printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s,
+										OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay,
+										req->uri[16], req->uri[17]);
 								set_outport((uint8_t) (req->uri[12] - 0x30), 4);
 								sprintf(buf, "out_result('ok')");
 								fault = 0;
@@ -630,9 +639,9 @@ void output_port(void *pvParameters) {
 	}
 
 	while (1) {
-	//	printf("OUT test \n\r");
+		//	printf("OUT test \n\r");
 		for (uint8_t ct = 0; ct < out_port_n; ct++) {
-		//	printf("OUT%d=%d\n\r",ct,OUT_PORT[ct].sost);
+			//	printf("OUT%d=%d\n\r",ct,OUT_PORT[ct].sost);
 			if (xSemaphoreTake(OUT_PORT[ct].S_gpio_port,
 					(TickType_t ) 100) == pdTRUE) {
 
@@ -643,26 +652,25 @@ void output_port(void *pvParameters) {
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							vTaskDelay(OUT_PORT[ct].delay / portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 1);
 
-
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							OUT_PORT[ct].type_logic = 0;
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							vTaskDelay(OUT_PORT[ct].delay / portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							OUT_PORT[ct].type_logic = 0;
 
 						}
@@ -673,13 +681,13 @@ void output_port(void *pvParameters) {
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-				//			log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//			log_out_event_cntl(&(OUT_PORT[ct]), ct);
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
 
 						}
 					}
@@ -702,41 +710,57 @@ esp_err_t save_data_output(void) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_d%d;", ct_s);
+		sprintf(name, "gpio_out_d%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].delay);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash1-%d", err, ct_s);
+		}
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_p%d;", ct_s);
+		sprintf(name, "gpio_out_p%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].polar_pulse);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash2-%d", err, ct_s);
+		}
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_type_logic_%d;", ct_s);
+		sprintf(name, "gpio_t_log_%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].type_logic);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash3-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_name_%d;", ct_s);
+		sprintf(name, "gpio_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].name), 32);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash4-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_set_name_%d;", ct_s);
+		sprintf(name, "gpio_s_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].set_name), 32);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash5-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_clr_name_%d;", ct_s);
+		sprintf(name, "gpio_c_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].clr_name), 32);
+		if (err != ESP_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash6-%d", err, ct_s);
+		}
 	}
+
 	//              uint8_t ALL_EVENT;
 //	err = err
 //			| nvs_set_u8(nvs_data_handle, get_name(ALL_EVENT),
@@ -823,41 +847,74 @@ esp_err_t load_data_output(void) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_d%d;", ct_s);
+		sprintf(name, "gpio_out_d%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].delay);
 
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash1-%d", name,
+					err, ct_s);
+		}
+
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_p%d;", ct_s);
+		sprintf(name, "gpio_out_p%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].polar_pulse);
 
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash2-%d", name,
+					err, ct_s);
+		}
+
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_type_logic_%d;", ct_s);
+		sprintf(name, "gpio_t_log_%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].type_logic);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash3-%d", name,
+					err, ct_s);
+		}
 		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_name_%d;", ct_s);
+		sprintf(name, "gpio_name_%d", ct_s);
+		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+					err, ct_s);
+		}
+
+		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_set_name_%d;", ct_s);
+		sprintf(name, "gpio_s_name_%d", ct_s);
+		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].set_name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+					err, ct_s);
+		}
+		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_clr_name_%d;", ct_s);
+		sprintf(name, "gpio_c_name_%d", ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].clr_name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash6-%d", name,
+					err, ct_s);
+		}
 	}
 
 //	lens = 16;

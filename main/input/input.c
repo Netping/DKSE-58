@@ -392,6 +392,9 @@ esp_err_t load_data_input(void) {
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].clr_name), &lens);
+		if (err != ESP_OK) {
+					ESP_LOGW("IN_READ", "Error %X read data to flash-%d", err, ct);
+				}
 	}
 	return err;
 }
@@ -424,6 +427,9 @@ esp_err_t save_data_input(void) {
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].clr_name), 16);
+		if (err != ESP_OK) {
+							ESP_LOGW("IN_SAVE", "Error %X save data to flash %d", err, ct);
+						}
 
 	}
 	return err;
