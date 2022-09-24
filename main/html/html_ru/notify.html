@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv=Content-Type content="text/html; charset=utf-8">
+    <meta charset="UTF-8"/>
+    <title>Веб-интерфейс</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="notify_get.cgi"></script>
+    <!--script src="devname.cgi"></script-->
+    <script src="menu.js" charset="utf-8"></script>
+    <!--script src="menu_get.cgi"></script-->
+    <style>
+      form {max-width:1110px;}
+      select, input[type="text"], input[type="button"] {width:160px;}
+      caption input[type="button"] {width:auto;min-width:160px;}
+      .lamp {display:inline-block;padding:0 1ex 0 1ex;border:solid 2px white;margin-left:4px;}
+      .edtdiv
+      {
+        position: absolute;
+        z-index:100;
+        border: solid 1px green;
+        background-color: white;
+        padding:25px;
+        left:100;
+        top:100;
+        box-shadow: 15px 15px 20px rgba(0,0,0,0.3);
+        visibility:hidden;
+      }
+      #ediv h2 {margin-top:0px;}
+      #edt_nf td, #edt_nf th {text-align:center;}
+      #edt_nf td {min-width:80px;}
+      .edt {width:620px;}
+      .edt td, .edt th {text-align:right;}
+      .edt td:first-child, .edt th:first-child {text-align:left;width:80%;}
+      caption {caption-side:bottom;}
+      table.modal_table td:last-child, table.modal_table th:last-child {text-align: right;}
+      div.modal_buttons {text-align:right;margin-top: 20px;}
+    </style>
+  </head>
+  <body>
+
+<script>
+menu('Уведомления');
+menu_adjust(menu_data);
+
+function getid(a) { return document.getElementById(a); }
+function getclass(a) { return document.getElementsByClassName(a); }
+
+function chkfrm() {
+    let f;
+    let d=hexb(data.length);
+    if(data.length >= 2) {
+        for(n in data) {
+            f={};
+            f.name = frm.n_name[n].value;
+            f.signal = parseInt(frm.n_signal[n].value, 10);
+            f.method = parseInt(frm.n_method[n].value, 10);
+            f.expr = frm.n_expr[n].value;
+            f.text_mess = frm.n_text[n].value;
+            f.send_to = frm.n_sendto[n].value;
+            f.active = frm.n_active[n].checked ? 1 : 0;
+            // TODO: check values
+            d+=pack(packfmt,f);
+        }
+    }
+    else {
+        if(data.length != 0) {
+            f={};
+            f.name = frm.n_name.value;
+            f.signal = parseInt(frm.n_signal.value, 10);
+            f.method = parseInt(frm.n_method.value, 10);
+            f.expr = frm.n_expr.value;
+            f.text_mess = frm.n_text.value;
+            f.send_to = frm.n_sendto.value;
+            f.active = frm.n_active.checked ? 1 : 0;
+            // TODO: check values
+            d+=pack(packfmt,f);
+        }
+    }
+    document.sender.data.value=d;
+    document.sender.submit();
+}
+
+function save_modal_data(el) {
+    var mode = getid('mode').value;
+    var n_num = getid('n_num').value;
+    var n_name = getid('n_name').value;
+    var n_signal = getid('n_signal').value;
+    var n_method = getid('n_method').value;
+    var n_expr = getid('n_expr').value;
+    var n_text = getid('n_text').value;
+    var n_sendto = getid('n_sendto').value;
+    if (mode == 'edit') {
+        getid('n_name_' + n_num).value = n_name;
+        getid('n_signal_' + n_num).value = n_signal;
+        getid('n_method_' + n_num).value = n_method;
+        getid('n_expr_' + n_num).value = n_expr;
+        getid('n_text_' + n_num).value = n_text;
+        getid('n_sendto_' + n_num).value = n_sendto;
+    }
+    else if (mode == 'create') {
+        var n_active = 'checked';
+        add_table_row(table, n_num, n_active, n_name, n_signal, n_method, n_expr, n_text, n_sendto)
+        data.push({name:n_name,active:n_active,signal:n_signal,method:n_method,expr:n_expr,text_mess:n_text,send_to:n_sendto});
+    }
+    chkfrm();
+}
+</script>
+
+    <div id="middle" align="center">
+      <div id="push_margin" style="height:1px"></div>
+      <div>
+        <form name="frm" id="idfrm" method="post" action="error.html">
+          <table id="edt_x_ref" class="paramtable_notify">
+            <caption class="send_button_container">
+              <div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+              <div style="clear:both"></div>
+            </caption>
+            <tr><th style="text-align:center;" class="cpt" colspan="8">УВЕДОМЛЕНИЯ<th><tr>
+            <tr>
+              <!--th>Уведомление</th-->
+              <th>Вкл/выкл</th>
+              <th>Памятка</th>
+              <th>Сигнал</th>
+              <th>Метод</th>
+              <th colspan="2">Настройка</th>
+            </tr>
+          </table>
+          <button class="createbtn" type="button" onclick="create_n(this)">Добавить</button>
+        </form>
+
+      </div>
+
+      <form name="sender" style="display:none" action="notify_set.cgi" method="post">
+        <input type="hidden" name="data">
+      </form>
+
+      <!-- Modal Settings -->
+      <div id="modalSettings" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="modal_title">НАСТРОЙКИ УВЕДОМЛЕНИЯ </p>
+          <form id="n_settings">
+            <input type="text" style="display:none;" id="n_num" name="n_num" value="" readonly>
+            <input type="text" style="display:none;" id="mode" name="mode" value="" readonly>
+            <table class="modal_table">
+                <tr><td>Наименование уведомления (Памятка)</td><td><input type="text" maxlength="64" id="n_name" name="n_name" value="Уведомление"></td></tr>
+                <tr>
+                  <td>Источник</td>
+                  <td><select id="n_signal" name="n_signal" required></select></td>
+                <tr>
+                  <td>Метод</td>
+                  <td><select id="n_method" name="n_method" required></select></td>
+                </tr>
+                <tr><td>Выражение</td><td><input type="text" maxlength="128" id="n_expr" name="n_expr" value=""></td></tr>
+                <tr><td>Текст сообщения</td><td><input type="text" maxlength="255" id="n_text" name="n_text" value="Текст сообщения"></td></tr>
+                <tr><td>Кому</td><td><input type="text" maxlength="64" id="n_sendto" name="n_sendto" value="Адресат"></td></tr>
+            </table>
+            <div class="modal_buttons">
+                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
+                <button type="button" onclick="save_modal_data(this)">Сохранить изменения</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+<script>
+var modal = getid("modalSettings");
+var span = getclass("close")[0];
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function create_n(el) {
+    var signal_select = getid("n_signal");
+    document.querySelector('#n_signal').innerHTML = '';
+    signal_arr.forEach(function(s, i) {
+        var option = document.createElement("option");
+        option.value = s.value;
+        option.text = s.text;
+        signal_select.add(option);
+    });
+    var method_select = getid("n_method");
+    document.querySelector('#n_method').innerHTML = '';
+    method_arr.forEach(function(m, i) {
+        var option = document.createElement("option");
+        option.value = m.value;
+        option.text = m.text;
+        method_select.add(option);
+    });
+    modal.style.display = "block";
+    var n_num = data.length + 1;
+    var title = "СОЗДАТЬ УВЕДОМЛЕНИЕ";
+    getid("modal_title").innerHTML = title;
+    getid("mode").value = 'create';
+    getid("n_num").value = n_num;
+    getid("n_name").value = 'Уведомление';
+    signal_select.options.selectedIndex = 0;
+    method_select.options.selectedIndex = 0;
+    //getid("n_signal").value = '';
+    //getid("n_method").value = '';
+    getid("n_expr").value = '';
+    getid("n_text").value = 'Текст уведомления';
+    getid("n_sendto").value = 'Адрес(а)';
+}
+
+function edit_n(el) {
+    var signal_select = getid("n_signal");
+    document.querySelector('#n_signal').innerHTML = '';
+    signal_arr.forEach(function(s, i) {
+        var option = document.createElement("option");
+        option.value = s.value;
+        option.text = s.text;
+        signal_select.add(option);
+    });
+    var method_select = getid("n_method");
+    document.querySelector('#n_method').innerHTML = '';
+    method_arr.forEach(function(m, i) {
+        var option = document.createElement("option");
+        option.value = m.value;
+        option.text = m.text;
+        method_select.add(option);
+    });
+    modal.style.display = "block";
+    var n_num = el.id.split('_')[1];
+    var title = "НАСТРОЙКИ УВЕДОМЛЕНИЯ " + String(n_num);
+    getid("modal_title").innerHTML = title;
+    getid("mode").value = 'edit';
+    getid("n_num").value = n_num;
+    getid("n_name").value = data[n_num - 1].name;
+    getid("n_signal").value = data[n_num - 1].signal;
+    getid("n_method").value = data[n_num - 1].method;
+    getid("n_expr").value = data[n_num - 1].expr;
+    getid("n_text").value = data[n_num - 1].text_mess;
+    getid("n_sendto").value = data[n_num - 1].send_to;
+}
+
+function change_active(el) {
+    chkfrm();
+}
+
+function delete_n(el) {
+    var isdel = confirm("Вы дейтствительно хотите удалить уведомление?");
+    if(isdel) {
+        var n_num = el.id.split('_')[2];
+        data.splice(n_num -1, 1);
+        var par_td = el.parentElement;
+        var par_tr = par_td.parentElement;
+        par_tr.remove();
+        chkfrm();
+    }
+}
+
+
+
+var table = getid("edt_x_ref");
+data.forEach(function(n, i) {
+    var n_num = i + 1;
+    var n_active = n.active;
+    var n_name = n.name;
+    var n_signal = n.signal;
+    var n_method = n.method;
+    var n_expr = n.expr;
+    var n_text = n.text_mess;
+    var n_sendto = n.send_to;
+    add_table_row(table, n_num, n_active, n_name, n_signal, n_method, n_expr, n_text, n_sendto);
+})
+
+function add_table_row(table, n_num, n_active, n_name, n_signal, n_method, n_expr, n_text, n_sendto) {
+    var row = table.insertRow(-1)
+    // var numcell = row.insertCell(0);
+    var active_cell = row.insertCell(0);
+    var namecell = row.insertCell(1);
+    var name_cell = row.insertCell(2);
+    var signalcell = row.insertCell(3);
+    var signal_cell = row.insertCell(4);
+    var methodcell = row.insertCell(5);
+    var method_cell = row.insertCell(6);
+    var expr_cell = row.insertCell(7);
+    var text_cell = row.insertCell(8);
+    var sendto_cell = row.insertCell(9);
+    var settingscell = row.insertCell(10);
+    var deletecell = row.insertCell(11);
+    // numcell.innerHTML = "Уведомление " + String(n_num);
+    var active = n_active ? 'checked' : '';
+    active_cell.innerHTML = '<input type="checkbox" id="n_active_' + String(n_num) + '" name="n_active" ' + active + ' onchange="change_active(this)">';
+    namecell.innerHTML = n_name;
+    namecell.style = 'width:80%;';
+    name_cell.innerHTML = '<input type="text" id="n_name_' + String(n_num) + '" name="n_name" value="' + n_name + '" readonly>';
+    name_cell.style = 'display:none;';
+    var searchSignal = signal_arr.findIndex((signal) => signal.value == n_signal);
+    signal = signal_arr[searchSignal];
+    signalcell.innerHTML = signal.text;
+    signal_cell.innerHTML = '<input type="text" id="n_signal_' + String(n_num) + '" name="n_signal" value="' + signal.value + '" readonly>';
+    signal_cell.style = 'display:none;';
+    var searchMethod = method_arr.findIndex((method) => method.value == n_method);
+    method = method_arr[searchMethod];
+    methodcell.innerHTML = method.text;
+    method_cell.innerHTML = '<input type="text" id="n_method_' + String(n_num) + '" name="n_method" value="' + method.value + '" readonly>';
+    method_cell.style = 'display:none;';
+    expr_cell.innerHTML = '<input type="text" id="n_expr_' + String(n_num) + '" name="n_expr" value="' + n_expr + '" readonly>';
+    expr_cell.style = 'display:none;';
+    text_cell.innerHTML = '<input type="text" id="n_text_' + String(n_num) + '" name="n_text" value="' + n_text + '" readonly>';
+    text_cell.style = 'display:none;';
+    sendto_cell.innerHTML = '<input type="text" id="n_sendto_' + String(n_num) + '" name="n_sendto" value="' + n_sendto + '" readonly>';
+    sendto_cell.style = 'display:none;';
+    settingscell.innerHTML = '<button type="button" id="n_' + String(n_num) + '" onclick="edit_n(this)">Настроить</button>';
+    deletecell.innerHTML = '<button class="delbtn" type="button" id="n_delete_' + String(n_num) + '" onclick="delete_n(this)">Удалить</button>';
+}
+      </script>
+
+      </div>
+    </div>
+
+    <div id="footer"></div>
+  </body>
+</html>

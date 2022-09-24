@@ -1,0 +1,17 @@
+
+
+
+# Python
+
+__pycache__/
+*.pyc
+*.cmake
+*.obj
+
+# Windows detritus
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+

@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/CMakeFiles/bootloader
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/CMakeFiles/bootloader.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/CMakeFiles/bootloader-complete.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

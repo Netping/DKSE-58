@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta charset="UTF-8"/>
+<title>Веб-интерфейс</title>
+<link rel="stylesheet" href="index.css">
+<script src="in_get.cgi?add_devname_menu"></script>
+<!--script src="devname.cgi"></script-->
+<script src="menu.js" charset="utf-8"></script>
+<!--script src="menu_get.cgi"></script-->
+<style>
+form {max-width:1110px;}
+select, input[type="text"], input[type="button"] {width:160px;}
+caption input[type="button"] {width:auto;min-width:160px;}
+.lamp {display:inline-block;padding:0 1ex 0 1ex;border:solid 2px white;margin-left:4px;}
+.edtdiv 
+{
+position: absolute;
+z-index:100;
+border: solid 1px green;
+background-color: white;
+padding:25px;
+left:100;
+top:100;
+box-shadow: 15px 15px 20px rgba(0,0,0,0.3);
+visibility:hidden;
+}
+#ediv h2 {margin-top:0px;}
+#edt_nf td, #edt_nf th {text-align:center;}
+#edt_nf td {min-width:80px;}
+.edt {width:620px;}
+.edt td, .edt th {text-align:right;}
+.edt td:first-child, .edt th:first-child {text-align:left;width:80%;}
+caption {caption-side:bottom;}
+table.modal_table td:last-child, table.modal_table th:last-child {text-align: right;}
+div.modal_buttons {text-align:right;margin-top: 20px;}
+</style>
+</head>
+<body>
+<script>
+menu('Линии ввода');
+menu_adjust(menu_data);
+
+var req = new XMLHttpRequest();
+
+function getid(a) { return document.getElementById(a); }
+function getclass(a) { return document.getElementsByClassName(a); }
+
+function chkfrm() {
+    let n,f;
+    let d='';
+    for(ch in data) {
+        f={};
+        f.name=frm.in_name[ch].value;
+        f.log1_desc=frm.in_state_on_desc[ch].value;
+        f.log0_desc=frm.in_state_off_desc[ch].value;
+        d+=pack(packfmt,f);
+    }
+    document.sender.data.value=d;
+    document.sender.submit();
+}
+
+function save_modal_data() {
+    var ch_num = getid('in_num').value;
+    getid('in_name_' + ch_num).value = getid('in_name').value;
+    getid('in_state_on_desc_' + ch_num).value = getid('in_state_on_desc').value;
+    getid('in_state_off_desc_' + ch_num).value = getid('in_state_off_desc').value;
+    chkfrm();
+}
+
+function show_in_ch_state(ch) {
+    var st = (data_status>>ch)&1;
+    var d=data[ch];
+    // var in_state_ch_desc = d.log ? d.log1_desc : d.log0_desc;
+    var in_state_ch_desc = st ? d.log1_desc : d.log0_desc;
+    var in_state_ch_id = String(parseInt(ch) + 1);
+    getid("in_state_ch_" + in_state_ch_id).innerHTML=in_state_ch_desc;
+}
+
+function show_in_state() {
+    for(let n in data) show_in_ch_state(n);
+}
+</script>
+
+<div id="middle" align="center">
+<div id="push_margin" style="height:1px"></div>
+<div>
+<form name="frm" id="idfrm" method="post" action="error.html">
+<table id="edt_x_ref" class="paramtable">
+<caption class="send_button_container">
+<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div style="clear:both"></div>
+</caption>
+<tr><th style="text-align:center;" class="cpt" colspan="8">ЛИНИИ ВВОДА<th><tr>
+<tr>
+<th>Вход</th>
+<th>Памятка</th>
+<th style="display:none;">Памятка</th>
+<th>Состояние</th>
+<th style="display:none;">Лог1.Расшифровка</th>
+<th style="display:none;">Лог0.Расшифровка</th>
+<th>Настройка</th></tr>
+</table>
+</form>
+</div>
+
+<form name="sender" style="display:none" action="in_set.cgi" method="post">
+<input type="hidden" name="data">
+</form>
+
+<!-- Modal Settings -->
+<div id="modalSettings" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal_title">НАСТРОЙКИ ВХОДНОЙ ЛИНИИ </p>
+        <form id="ch_settings">
+            <input type="text" style="display:none;" id="in_num" name="in_num" value="" readonly>
+            <table class="modal_table">
+                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="32" id="in_name" name="in_name" value="Линия "></td></tr>
+                <tr><th align="left">Уровень на линии</th><th align="left">Расшифровка</th></tr>
+                <tr><td>Лог. 1</td><td><input type="text" maxlength="32" id="in_state_on_desc" name="in_state_on" value="Включено"></td></tr>
+                <tr><td>Лог. 0</td><td><input type="text" maxlength="32" id="in_state_off_desc" name="in_state_off" value="Выключено"></td></tr>
+            </table>
+            <div class="modal_buttons">
+                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
+                <button type="button" onclick="save_modal_data()">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+var modal = getid("modalSettings");
+var span = getclass("close")[0];
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function edit_io(el) {
+    modal.style.display = "block";
+    var ch_num = el.id.split('_')[1];
+    var title = "НАСТРОЙКИ ВХОДНОЙ ЛИНИИ " + String(ch_num);
+    getid("modal_title").innerHTML = title;
+    getid("in_num").value = ch_num;
+    getid("in_name").value = data[ch_num - 1].name;
+    getid("in_state_on_desc").value = data[ch_num - 1].log1_desc;
+    getid("in_state_off_desc").value = data[ch_num - 1].log0_desc;
+}
+
+var table = getid("edt_x_ref");
+data.forEach(function(io, i) {
+    var row = table.insertRow(-1)
+    var numcell = row.insertCell(0);
+    var namecell = row.insertCell(1);
+    var name_cell = row.insertCell(2);
+    var statecell = row.insertCell(3);
+    var state_on_desc_cell = row.insertCell(4);
+    var state_off_desc_cell = row.insertCell(5);
+    var controlcell = row.insertCell(6);
+    numcell.innerHTML = "Вход " + String(i + 1);
+    namecell.innerHTML = io.name;
+    name_cell.innerHTML = '<input type="text" id="in_name_' + String(i + 1) + '" name="in_name" value="' + io.name + '" readonly>';
+    name_cell.style = 'display:none;'
+    statecell.id = "in_state_ch_" + String(i + 1);
+    state_on_desc_cell.innerHTML = '<input type="text" id="in_state_on_desc_' + String(i + 1) + '" name="in_state_on_desc" value="' + io.log1_desc + '" readonly>';
+    state_on_desc_cell.style = 'display:none;'
+    state_off_desc_cell.innerHTML = '<input type="text" id="in_state_off_desc_' + String(i + 1) + '" name="in_state_off_desc" value="' + io.log0_desc + ' " readonly>';
+    state_off_desc_cell.style = 'display:none;'
+    controlcell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_io(this)">Настройка линии ' + String(i + 1) + '</button>';
+})
+
+show_in_state();
+
+var sse_timeout;
+function show_sse_error() { getid('error').style.visibility="visible"; }
+function hide_sse_error() { getid('error').style.visibility="hidden"; }
+function alive() { clearTimeout(sse_timeout); sse_timeout=setTimeout(show_sse_error,12000); hide_sse_error(); }
+
+if(typeof(window.EventSource)=='undefined' || devname.indexOf('Test')!=-1)
+{
+ show_sse_error();
+}
+else
+{
+ var sse=new EventSource("/in_get.cgi");
+ sse.addEventListener('in_state', function (e) { alive(); window.data_status=parseInt(e.data); show_in_state(); }, false)
+ sse.addEventListener('sse_ping', alive, false);
+ alive();
+}
+</script>
+
+</div>
+</div>
+
+<div id="footer"></div>
+</body>
+</html>

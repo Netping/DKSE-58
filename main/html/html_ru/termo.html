@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta charset="UTF-8"/>
+<title>Веб-интерфейс</title>
+<link rel="stylesheet" href="index.css">
+<script src="menu.js" charset="utf-8"></script>
+<!--script src="menu_get.cgi"></script-->
+<script src="termo_get.cgi?add_devname_menu"></script>
+<!--temp scripts-->
+<script type="text/javascript" src="temp.js"></script>
+<!--end temp scripts-->
+<style>
+form {max-width:1110px;}
+select, input[type="text"], input[type="button"] {width:160px;}
+caption input[type="button"] {width:auto;min-width:160px;}
+.lamp {display:inline-block;padding:0 1ex 0 1ex;border:solid 2px;margin-left:4px;border-radius:50%}
+.edtdiv
+{
+position: absolute;
+z-index:100;
+border: solid 1px green;
+background-color: white;
+padding:25px;
+left:100;
+top:100;
+box-shadow: 15px 15px 20px rgba(0,0,0,0.3);
+visibility:hidden;
+}
+#ediv h2 {margin-top:0px;}
+#edt_nf td, #edt_nf th {text-align:center;}
+#edt_nf td {min-width:80px;}
+.edt {width:620px;}
+.edt td, .edt th {text-align:right;}
+.edt td:first-child, .edt th:first-child {text-align:left;width:80%;}
+caption {caption-side:bottom;}
+table.modal_table td:last-child, table.modal_table th:last-child {text-align: right;}
+div.modal_buttons {text-align:right;margin-top: 20px;}
+form td button[type="button"] {width:100%}
+</style>
+</head>
+<body>
+<script>
+menu('Датчики температуры');
+menu_adjust(menu_data);
+
+// var termo_status_txt=['123','123','123','123'];
+
+function getid(a) { return document.getElementById(a); }
+function getclass(a) { return document.getElementsByClassName(a); }
+
+function chkfrm() {
+    let n,f;
+    let d='';
+    for(termo in data) {
+        f={};
+        f.name=frm.termo_name[termo].value;
+        f.termo_id=frm.termo_id[termo].value;
+        d+=pack(packfmt,f);
+    }
+    document.sender.data.value=d;
+    document.sender.submit();
+}
+
+function save_modal_data() {
+    var termo_num = getid('termo_num').value;
+    getid('termo_name_' + termo_num).value = getid('termo_name').value;
+    getid('termo_id_' + termo_num).value = getid('termo_id').value;
+    chkfrm();
+}
+
+</script>
+
+<div id="middle" align="center">
+<div id="push_margin"></div>
+<div>
+<form name="frm" method="post" action="error.html">
+<table id="edt_x_ref" class="paramtable">
+<caption class="send_button_container">
+<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div style="clear:both"></div>
+</caption>
+<tr><th style="text-align:center;" class="cpt" colspan="8">ДАТЧИКИ ТЕМПЕРАТУРЫ<th><tr>
+<tr>
+<th>Датчик</th>
+<th style="display:none;">Памятка</th>
+<th style="display:none;">ID датчика</th>
+
+<th>Памятка</th>
+<th>Температура</th>
+<th>Настройка</th></tr>
+</table>
+</form>
+
+<form name="sender" style="display:none" method="post" action="termo_set.cgi">
+<input type="hidden" name="data">
+</form>
+</div>
+
+<!-- Modal Settings -->
+<div id="modalSettings" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modal_title">НАСТРОЙКИ ДАТЧИКА </p>
+        <form id="ch_settings">
+            <input type="text" style="display:none;" id="termo_num" name="termo_num" value="" readonly>
+            <table class="modal_table">
+                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="32" id="termo_name" name="termo_name" value=""></td></tr>
+                <tr><td>ID датчика</td><td><input type="text" maxlength="32" id="termo_id" name="termo_id" value=""></td></tr>
+            </table>
+            <div class="modal_buttons">
+                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
+                <button type="button" onclick="save_modal_data()">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+var modal = getid("modalSettings");
+var span = getclass("close")[0];
+
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+function edit_termo(el) {
+    modal.style.display = "block";
+    var termo_num = el.id.split('_')[1];
+    var title = "НАСТРОЙКИ ДАТЧИКА " + String(termo_num);
+    getid("modal_title").innerHTML = title;
+    getid("termo_num").value = termo_num;
+    getid("termo_name").value = data[termo_num - 1].name;
+    getid("termo_id").value = data[termo_num - 1].termo_id;
+}
+
+var table = getid("edt_x_ref");
+data.forEach(function(termo, i) {
+    var row = table.insertRow(-1)
+    var numcell = row.insertCell(0);
+    var name_cell = row.insertCell(1);
+    var termo_id_cell = row.insertCell(2);
+    var namecell = row.insertCell(3);
+    var tempcell = row.insertCell(4);
+    var settingscell = row.insertCell(5);
+
+    numcell.innerHTML = "Датчик " + String(i + 1);
+    namecell.innerHTML = termo.name;
+    name_cell.innerHTML = '<input type="text" id="termo_name_' + String(i + 1) + '" name="termo_name" value="' + termo.name + '" readonly>';
+    name_cell.style = 'display:none;'
+    termo_id_cell.innerHTML = '<input type="text" id="termo_id_' + String(i + 1) + '" name="termo_id" value="' + termo.termo_id + '" readonly>';
+    termo_id_cell.style = 'display:none;'
+    tempcell.id = "termo_temp_" + String(i + 1);
+    tempcell.innerHTML = termo.temp == 65535 ? "Отказ" : "T= " + termo.temp / 10 + "&#176;C";
+    tempcell.style = "text-align:center;"
+    settingscell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_termo(this)">Настройка датчика ' + String(i + 1) + '</button>';
+})
+
+function response() {
+    var d,i,err=getid('error').style;
+    d=this.responseText;
+    if(this.status!=200 || !d || d=='') { err.visibility="visible"; return; }
+    err.visibility="hidden";
+    d=eval(d);
+    for(i in d) {
+        frm._value[i].value=d[i].value;
+        frm._status[i].value=termo_status_txt[d[i].status];
+    }
+}
+
+function monitor() {
+    var req=new XMLHttpRequest();
+    req.open("GET","/termo_data.cgi",true);
+    req.onload=response;
+    req.timeout=5900;
+    req.ontimeout=function(){getid('error').style.visibility="visible";};
+    req.send();
+}
+
+setInterval(monitor,10000);
+
+</script>
+
+</div>
+</div>
+
+<div id="footer"></div>
+</body>
+</html>
