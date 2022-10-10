@@ -1,7 +1,7 @@
 /*
  * output.c
  *
- *  Created on: 20 апр. 2022 г.
+ *  Created on: 20 пїЅпїЅпїЅ. 2022 пїЅ.
  *      Author: ivanov
  */
 #include "config_pj.h"
@@ -569,7 +569,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 		break;
 	case OUT_SETT:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
-				"Изменение настроек");
+				"Изменены настройки модуля");
 		break;
 	case OUT_ERR:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
@@ -578,7 +578,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 		break;
 	default:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
-				"Ошибка журнала");
+				"Неизвестное событие");
 	}
 	strcat(out, out_small);
 }
@@ -841,7 +841,7 @@ esp_err_t save_data_output(void) {
 
 esp_err_t load_data_output(void) {
 	esp_err_t err = 0;
-	uint8_t lens = 16;
+	size_t lens = 16;
 	uint8_t ct_s;
 	char name[64];
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
@@ -1002,17 +1002,17 @@ void load_def_output(void) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "Линия%d", ct_s);
+		sprintf(name, "Линия %d", ct_s);
 		memset((uint8_t*) &OUT_PORT[ct_s].name, 0, 32);
 		memcpy((uint8_t*) &OUT_PORT[ct_s].name, name, strlen(name));
 
 		memset((uint8_t*) &OUT_PORT[ct_s].clr_name, 0, 32);
-		memcpy((uint8_t*) &OUT_PORT[ct_s].clr_name, (uint8_t*) "Выключено",
-				sizeof("Выключено"));
+		memcpy((uint8_t*) &OUT_PORT[ct_s].clr_name, (uint8_t*) "Выключить",
+				sizeof("Выключить"));
 
 		memset((uint8_t*) &OUT_PORT[ct_s].set_name, 0, 32);
-		memcpy((uint8_t*) &OUT_PORT[ct_s].set_name, (uint8_t*) "Включено",
-				sizeof("Включено"));
+		memcpy((uint8_t*) &OUT_PORT[ct_s].set_name, (uint8_t*) "Включить",
+				sizeof("Включить"));
 
 		OUT_PORT[ct_s].delay = 5000;
 		OUT_PORT[ct_s].type_logic = 0;

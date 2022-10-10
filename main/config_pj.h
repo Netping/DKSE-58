@@ -1,7 +1,7 @@
 /*
  * config_pj.h
  *
- *  Created on: 19 окт. 2021 г.
+ *  Created on: 19 пїЅпїЅпїЅ. 2021 пїЅ.
  *      Author: ivanov
  */
 
@@ -10,7 +10,7 @@
 
 //*****************************************Main config*************************************************
 #define Platform 58
-#define rev 0
+#define rev 2
 #define Assembly 0
 #define Bild 0
 
@@ -19,7 +19,7 @@
 #define BLINK_GPIO CONFIG_BLINK_GPIO
 #define hw_config 1
 #define MAIN_APP_DEFAULT_CONF 0
-#define DEF_DHCP 1
+#define DEF_DHCP 0
 //#define OUT_POW_EN 4
 #define size_1k_buff 24
 
@@ -29,7 +29,7 @@
 #define MAIN_APP_OWB_H_ 1
 
 #if  MAIN_APP_OWB_H_ == 1
-#define max_sensor 4
+#define max_sensor 16
 #include "..\main\termo\app_owb.h"
 
 //#define OW_DEBUG 0

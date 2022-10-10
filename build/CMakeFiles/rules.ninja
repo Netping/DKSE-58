@@ -6,7 +6,7 @@
 # It is included in the main 'build.ninja'.
 
 # =============================================================================
-# Project: 110_v0_app
+# Project: 58_v2_app
 # Configurations: 
 # =============================================================================
 # =============================================================================
@@ -14,7 +14,7 @@
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__110_v0_app.2eelf_
+rule C_COMPILER__58_v2_app.2eelf_
   depfile = $DEP_FILE
   deps = gcc
   command = ccache C:\Espressif\tools\xtensa-esp32-elf\esp-2021r2-patch3-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -24,7 +24,7 @@ rule C_COMPILER__110_v0_app.2eelf_
 #############################################
 # Rule for linking CXX executable.
 
-rule CXX_EXECUTABLE_LINKER__110_v0_app.2eelf_
+rule CXX_EXECUTABLE_LINKER__58_v2_app.2eelf_
   command = cmd.exe /C "$PRE_LINK && C:\Espressif\tools\xtensa-esp32-elf\esp-2021r2-patch3-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-g++.exe $FLAGS $LINK_FLAGS @$RSP_FILE -o $TARGET_FILE  && $POST_BUILD"
   description = Linking CXX executable $TARGET_FILE
   rspfile = $RSP_FILE
@@ -1581,7 +1581,7 @@ rule C_STATIC_LIBRARY_LINKER____idf_components_
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = C:\Espressif\tools\cmake\3.23.1\bin\cmake.exe --regenerate-during-build -SD:\ika\development\NETPING_PROJECT\58\works58_v1\BKSE_58_2 -BD:\ika\development\NETPING_PROJECT\58\works58_v1\BKSE_58_2\build
+  command = C:\Espressif\tools\cmake\3.23.1\bin\cmake.exe --regenerate-during-build -SD:\ika\development\NETPING_PROJECT\DKSE-58 -BD:\ika\development\NETPING_PROJECT\DKSE-58\build
   description = Re-running CMake...
   generator = 1
 

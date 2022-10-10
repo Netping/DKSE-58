@@ -1,7 +1,7 @@
 /*
  * update.c
  *
- *  Created on: 18 сент. 2021 г.
+ *  Created on: 18 пїЅпїЅпїЅпїЅ. 2021 пїЅ.
  *      Author: ivanov
  */
 
@@ -233,12 +233,12 @@ const httpd_uri_t np_html_uri_main = {
 	(void*)&_html_page_index_html
 };
 
-const httpd_uri_t np_html_uri_wdog = {
-	"/wdog.html",
-	HTTP_GET,
-	np_http_get_handler,
-	(void*)&_html_page_wdog_html
-};
+//const httpd_uri_t np_html_uri_wdog = {
+//	"/wdog.html",
+//	HTTP_GET,
+//	np_http_get_handler,
+//	(void*)&_html_page_wdog_html
+//};
 
 
 
@@ -250,10 +250,10 @@ const httpd_uri_t np_html_uri_setings = {
 	(void*)&_html_page_settings_html
 };
 
-const httpd_uri_t np_html_uri_sendmail = {
-	"/sendmail.html",
-	HTTP_GET,
-	np_http_get_handler,
-	(void*)&_html_page_sendmail_html
-};
+//const httpd_uri_t np_html_uri_sendmail = {
+//	"/sendmail.html",
+//	HTTP_GET,
+//	np_http_get_handler,
+//	(void*)&_html_page_sendmail_html
+//};
 

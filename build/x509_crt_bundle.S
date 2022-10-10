@@ -1,4 +1,4 @@
-/* * Data converted from D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58_2/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

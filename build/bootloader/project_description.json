@@ -1,8 +1,8 @@
 {
     "project_name":       "bootloader",
     "project_path":       "C:/Espressif/frameworks/esp-idf-v4.4.2/components/bootloader/subproject",
-    "build_dir":          "D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58_2/build/bootloader",
-    "config_file":        "D:/ika/development/NETPING_PROJECT/58/works58_v1/BKSE_58_2/sdkconfig",
+    "build_dir":          "D:/ika/development/NETPING_PROJECT/DKSE-58/build/bootloader",
+    "config_file":        "D:/ika/development/NETPING_PROJECT/DKSE-58/sdkconfig",
     "config_defaults":    "",
     "app_elf":            "bootloader.elf",
     "app_bin":            "bootloader.bin",

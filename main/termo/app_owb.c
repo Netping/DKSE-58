@@ -24,7 +24,7 @@
 
 #include "..\main\config_pj.h"
 
-#if  MAIN_APP_OWB_H_ == 1
+
 #include <esp_event.h>
 
 #include "http_var.h"
@@ -39,7 +39,7 @@
 #include "owb.h"
 #include "owb_rmt.h"
 #include "ds18b20.h"
-
+#include "LOGS.h"
 #include "app_owb.h"
 #include "nvs_task.h"
 #include "private_mib.h"
@@ -53,9 +53,12 @@
 #define get_name(x) #x
 #include "..\termo\owb.h"
 FW_termo_t termo[MAX_DEVICES];
-
+int num_devices;
+#if  MAIN_APP_OWB_H_ == 1
 #define DS18B20_RESOLUTION   (DS18B20_RESOLUTION_12_BIT)
-
+enum termo_event_t {
+	TERMO_START, TERMO_SETE, TERMO_CLRE, TERMO_SETT, TERMO_ERR, TERMO_FINDOK
+};
 const httpd_uri_t termo_get_api = { .uri = "/termo_get.cgi", .method = HTTP_GET,
 		.handler = termo_get_cgi_api_handler, .user_ctx = 0 };
 
@@ -121,7 +124,8 @@ static uint8_t read_mess_smtp(char *in, uint8_t *out) {
 void app_owb(void *pvParameters) {
 	// Override global log level
 	esp_log_level_set("*", ESP_LOG_INFO);
-
+	log_start_termo();
+	uint8_t start_event=0;
 	// To debug, use 'make menuconfig' to set default Log level to DEBUG, then uncomment:
 	//esp_log_level_set("owb", ESP_LOG_DEBUG);
 	//esp_log_level_set("ds18b20", ESP_LOG_DEBUG);
@@ -139,7 +143,7 @@ void app_owb(void *pvParameters) {
 	// Find all connected devices
 	printf("Find devices:\n");
 	OneWireBus_ROMCode device_rom_codes[MAX_DEVICES] = { 0 };
-	int num_devices = 0;
+	num_devices = 0;
 	OneWireBus_SearchState search_state = { 0 };
 	bool found = false;
 	owb_search_first(owb, &search_state, &found);
@@ -266,21 +270,25 @@ void app_owb(void *pvParameters) {
 				termo[i].id[5] = device_rom_codes[i].bytes[2];
 				termo[i].id[6] = device_rom_codes[i].bytes[1];
 				termo[i].id[7] = device_rom_codes[i].bytes[0];
-				if (termo[i].t_dw >= termo[i].temper) {
-					termo[i].status = 1;
-				} else if (termo[i].t_up <= termo[i].temper) {
-					termo[i].status = 3;
-				} else {
+//				if (termo[i].t_dw >= termo[i].temper) {
+//					termo[i].status = 1;
+//				} else if (termo[i].t_up <= termo[i].temper) {
+//					termo[i].status = 3;
+//				} else {
 					termo[i].status = 2;
-				}
-				if (termo[i].status_old != termo[i].status) {
-					send_mess_trap_termo(OID_termo, i);
-					termo[i].status_old = termo[i].status;
+//				}
+//				if (termo[i].status_old != termo[i].status) {
+//					send_mess_trap_termo(OID_termo, i);
+//					termo[i].status_old = termo[i].status;
+//				}
+				if (start_event==0)
+				{
+				log_termo_save_mess(TERMO_FINDOK, i);
+
 				}
 
 			}
-
-
+			start_event=1;
 //			typedef enum
 //			{
 //			    DS18B20_ERROR_UNKNOWN = -1,  ///< An unknown error occurred, or the value was not set
@@ -290,8 +298,6 @@ void app_owb(void *pvParameters) {
 //			    DS18B20_ERROR_OWB,     ///< A One Wire Bus error occurred
 //			    DS18B20_ERROR_NULL,    ///< A parameter or value is NULL
 //			} DS18B20_ERROR;
-
-
 
 			// Print results in a separate loop, after all have been read
 			printf("\nTemperature readings (degrees C): sample %d\n",
@@ -306,8 +312,7 @@ void app_owb(void *pvParameters) {
 						errors_count[i]);
 			}
 
-			vTaskDelayUntil(&last_wake_time,
-			SAMPLE_PERIOD / portTICK_PERIOD_MS);
+			vTaskDelayUntil(&last_wake_time, SAMPLE_PERIOD / portTICK_PERIOD_MS);
 		}
 	} else {
 		printf("\nNo DS18B20 devices detected!\n");
@@ -345,9 +350,9 @@ void lwip_privmib_init_termo(void) {
 esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 	//#warning "******** where is no error processing !  *******"
 	httpd_resp_set_hdr(req, "Cache-Control",
-				"no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_sse);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_sse);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	esp_app_desc_t app_desc;
 	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
@@ -361,68 +366,79 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 	sprintf(buf,
 			"packfmt={name:{offs:0,len:34},termo_id:{offs:34,len:34},__len:68};");
 
-
-
 	sprintf(buf_temp, " var data=[");
 	strcat(buf, buf_temp);
+	uint8_t sensor_cont;
+	if (num_devices != 0) {
+		sensor_cont = num_devices;
+	} else {
+		sensor_cont = max_sensor;
 
-	for (uint8_t ct = 0; ct < max_sensor - 1; ct++) {
+	}
+
+	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
 		sprintf(buf_temp, "{name:\"%s\",", termo[ct].name);
 		strcat(buf, buf_temp);
-		printf("Name%d=%s\n\r",ct,termo[ct].name);
+		printf("Name%d=%s\n\r", ct, termo[ct].name);
 		sprintf(buf_temp, "termo_id:\"%02x%02x%02x%02x%02x%02x%02x%02x\",",
 				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
 				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
 				termo[ct].id[6], termo[ct].id[7]);
 		strcat(buf, buf_temp);
-		printf("termo_id%d=%02x%02x%02x%02x%02x%02x%02x%02x\n\r",ct,termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+		printf("termo_id%d=%02x%02x%02x%02x%02x%02x%02x%02x\n\r", ct,
+				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
 				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
 				termo[ct].id[6], termo[ct].id[7]);
 
-		sprintf(buf_temp, "temp:%d}",
-				(uint16_t) (termo[ct].temper * 10 + termo[ct].ftemper));
+		sprintf(buf_temp, "temp:%d}", (uint16_t) (10 * termo[ct].ftemper));
 		strcat(buf, buf_temp);
-		printf("temp%d=%d\n\r",ct,(uint16_t) (termo[ct].temper * 10 + termo[ct].ftemper));
+		printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
 		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{name:\"%s\",", termo[max_sensor - 1].name);
+	sprintf(buf_temp, "{name:\"%s\",", termo[sensor_cont - 1].name);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "termo_id:\"%02x%02x%02x%02x%02x%02x%02x%02x\",",
-			termo[max_sensor - 1].id[0], termo[max_sensor - 1].id[1],
-			termo[max_sensor - 1].id[2], termo[max_sensor - 1].id[3],
-			termo[max_sensor - 1].id[4], termo[max_sensor - 1].id[5],
-			termo[max_sensor - 1].id[6], termo[max_sensor - 1].id[7]);
+			termo[sensor_cont - 1].id[0], termo[sensor_cont - 1].id[1],
+			termo[sensor_cont - 1].id[2], termo[sensor_cont - 1].id[3],
+			termo[sensor_cont - 1].id[4], termo[sensor_cont - 1].id[5],
+			termo[sensor_cont - 1].id[6], termo[sensor_cont - 1].id[7]);
 	strcat(buf, buf_temp);
+//	sprintf(buf_temp, "temp:%d}",
+//			(uint16_t) (termo[sensor_cont - 1].temper * 10
+//					+ termo[sensor_cont - 1].ftemper));
+
 	sprintf(buf_temp, "temp:%d}",
-			(uint16_t) (termo[max_sensor - 1].temper * 10
-					+ termo[max_sensor - 1].ftemper));
+			(uint16_t) (10 * termo[sensor_cont - 1].ftemper));
+
+	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
+
 	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "];");
 	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
-		strcat(buf, buf_temp);
+	strcat(buf, buf_temp);
 
-		esp_ota_get_partition_description(running, &app_desc);
-		sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
-		strcat(buf, buf_temp);
-		sprintf(buf_temp, "var hwver=%d;", hw_config);
-		strcat(buf, buf_temp);
-		sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
-		strcat(buf, buf_temp);
-		sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
-		strcat(buf, buf_temp);
-		sprintf(buf_temp, "var hwmodel=%d;", 6);
-		strcat(buf, buf_temp);
-		sprintf(buf_temp, "var data_status='%d';", 0);
-		strcat(buf, buf_temp);
+	esp_ota_get_partition_description(running, &app_desc);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var hwver=%d;", hw_config);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var hwmodel=%d;", 6);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var data_status='%d';", 0);
+	strcat(buf, buf_temp);
 	//	gpio_status = ;
-		sprintf(buf_temp, "var menu_data='%d';", MENU_CONFG);
-		strcat(buf, buf_temp);
-		printf(buf_temp, " pack(packfmt, data);\n");
-		strcat(buf, buf_temp);
+	sprintf(buf_temp, "var menu_data='%d';", MENU_CONFG);
+	strcat(buf, buf_temp);
+	printf(buf_temp, " pack(packfmt, data);\n");
+	strcat(buf, buf_temp);
 
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
@@ -431,9 +447,9 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	//#warning "******** where is no error processing !  *******"
 	httpd_resp_set_hdr(req, "Cache-Control",
-				"no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_sse);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	esp_app_desc_t app_desc;
 	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
@@ -444,84 +460,89 @@ esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	}
 //	char buf[1024];
 	char buf_temp[256];
-	if ((req->uri[13] == 'a') & (req->uri[14] == 'd') & (req->uri[15] == 'd')) {
-	sprintf(buf,"packfmt={name:{offs:0,len:34},termo_id:{offs:34,len:34},__len:68};");
 
+//	if ((req->uri[13] == 'a') & (req->uri[14] == 'd') & (req->uri[15] == 'd')) {
+//	sprintf(buf,"packfmt={name:{offs:0,len:34},termo_id:{offs:34,len:34},__len:68};");
 
+	memset(buf, 0, size_1k_buff * 1044);
+	sprintf(buf_temp, "var data=[");
+	strcat(buf, buf_temp);
+	uint8_t sensor_cont;
+	if (num_devices != 0) {
+		sensor_cont = num_devices;
+	} else {
+		sensor_cont = max_sensor;
 
-		sprintf(buf_temp, " var data=[");
+	}
+	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
+		sprintf(buf_temp, "{name:\"%s\",", termo[ct].name);
 		strcat(buf, buf_temp);
-
-		for (uint8_t ct = 0; ct < max_sensor - 1; ct++) {
-			sprintf(buf_temp, "{name:\"%s\",", termo[ct].name);
-			strcat(buf, buf_temp);
-			printf("Name%d=%s\n\r",ct,termo[ct].name);
-			sprintf(buf_temp, "termo_id:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
-					termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
-					termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
-					termo[ct].id[6], termo[ct].id[7]);
-			strcat(buf, buf_temp);
-			printf("termo_id%d=%02x%02x %02x%02x %02x%02x %02x%02x\n\r",ct,termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
-					termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
-					termo[ct].id[6], termo[ct].id[7]);
-
-			sprintf(buf_temp, "temp:%d}",
-					(uint16_t) (termo[ct].temper * 10 + termo[ct].ftemper));
-			strcat(buf, buf_temp);
-			printf("temp%d=%d\n\r",ct,(uint16_t) (termo[ct].temper * 10 + termo[ct].ftemper));
-			sprintf(buf_temp, ",");
-			strcat(buf, buf_temp);
-		}
-		sprintf(buf_temp, "{name:\"%s\",", termo[max_sensor - 1].name);
-		strcat(buf, buf_temp);
+		printf("Name%d=%s\n\r", ct, termo[ct].name);
 		sprintf(buf_temp, "termo_id:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
-				termo[max_sensor - 1].id[0], termo[max_sensor - 1].id[1],
-				termo[max_sensor - 1].id[2], termo[max_sensor - 1].id[3],
-				termo[max_sensor - 1].id[4], termo[max_sensor - 1].id[5],
-				termo[max_sensor - 1].id[6], termo[max_sensor - 1].id[7]);
+				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
+				termo[ct].id[6], termo[ct].id[7]);
 		strcat(buf, buf_temp);
-		sprintf(buf_temp, "temp:%d}",
-				(uint16_t) (termo[max_sensor - 1].temper * 10
-						+ termo[max_sensor - 1].ftemper));
+		printf("termo_id%d=%02x%02x %02x%02x %02x%02x %02x%02x\n\r", ct,
+				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
+				termo[ct].id[6], termo[ct].id[7]);
+
+		sprintf(buf_temp, "temp:%d}", (uint16_t) (10 * termo[ct].ftemper));
 		strcat(buf, buf_temp);
-
-		sprintf(buf_temp, "];");
+		printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
+		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
+	}
+	sprintf(buf_temp, "{name:\"%s\",", termo[sensor_cont - 1].name);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "termo_id:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
+			termo[sensor_cont - 1].id[0], termo[sensor_cont - 1].id[1],
+			termo[sensor_cont - 1].id[2], termo[sensor_cont - 1].id[3],
+			termo[sensor_cont - 1].id[4], termo[sensor_cont - 1].id[5],
+			termo[sensor_cont - 1].id[6], termo[sensor_cont - 1].id[7]);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "temp:%d}",
+			(uint16_t) (10 * termo[sensor_cont - 1].ftemper));
 
-		sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
-			strcat(buf, buf_temp);
+	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
+	strcat(buf, buf_temp);
 
-			esp_ota_get_partition_description(running, &app_desc);
-			sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
-			strcat(buf, buf_temp);
-			sprintf(buf_temp, "var hwver=%d;", hw_config);
-			strcat(buf, buf_temp);
-			sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
-			strcat(buf, buf_temp);
-			sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
-			strcat(buf, buf_temp);
-			sprintf(buf_temp, "var hwmodel=%d;", 6);
-			strcat(buf, buf_temp);
-			sprintf(buf_temp, "var data_status='%d';", 0);
-			strcat(buf, buf_temp);
-		//	gpio_status = ;
-			sprintf(buf_temp, "var menu_data='%d';", MENU_CONFG);
-			strcat(buf, buf_temp);
-			printf(buf_temp, " pack(packfmt, data);\n");
-			strcat(buf, buf_temp);
-			strcat(buf, buf_temp);
-		} else {
-			sprintf(buf,
-					"<pre>\nretry: 500\n\nevent: termo_status\ndata: %d\n\n<\pre>",
-					111);
-		//	strcat(buf, buf_temp);
+	sprintf(buf_temp, "];");
+	strcat(buf, buf_temp);
 
-		}
+//		sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
+//			strcat(buf, buf_temp);
+//
+//			esp_ota_get_partition_description(running, &app_desc);
+//			sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
+//			strcat(buf, buf_temp);
+//			sprintf(buf_temp, "var hwver=%d;", hw_config);
+//			strcat(buf, buf_temp);
+//			sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
+//			strcat(buf, buf_temp);
+//			sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
+//			strcat(buf, buf_temp);
+//			sprintf(buf_temp, "var hwmodel=%d;", 6);
+//			strcat(buf, buf_temp);
+//			sprintf(buf_temp, "var data_status='%d';", 0);
+//			strcat(buf, buf_temp);
+//		//	gpio_status = ;
+//			sprintf(buf_temp, "var menu_data='%d';", MENU_CONFG);
+//			strcat(buf, buf_temp);
+//			printf(buf_temp, " pack(packfmt, data);\n");
+//			strcat(buf, buf_temp);
+//			strcat(buf, buf_temp);
+//		} else {
+//			sprintf(buf,
+//					"<pre>\nretry: 500\n\nevent: termo_status\ndata: %d\n\n<\pre>",
+//					111);
+//		//	strcat(buf, buf_temp);
+//
+//		}
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
-
-
 
 static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
@@ -534,35 +555,53 @@ static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 	uint8_t ct;
 
 	httpd_resp_set_status(req, "303 See Other");
-		httpd_resp_set_hdr(req, "Location", "\termo.html");
-		httpd_resp_set_hdr(req, "Cache-Control",
-				"no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_sse);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Location", "./termo.html");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_sse);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
 
 	}
-	for(uint16_t ct=0;ct<MAX_DEVICES;ct++)
-	{
-	len = read_mess_smtp((char*) (buf + 5+ct*68), (uint8_t*) buf_temp);
-	memset(termo[ct].name, 0, 16);
-	memcpy(termo[ct].name, (char*) (buf_temp), len);
-	memset(buf_temp, 0, 1024);
-	printf("Name%d=%s\n\r",ct,termo[ct].name);
 
-//	len = read_mess_smtp((char*) (buf + 73), (uint8_t*) buf_temp);
-//	memset(termo[1].name, 0, 16);
-//	memcpy(termo[1].name, (char*) (buf_temp), len);
+	printf("termo_set.cgi len =%d \n\rdata=\n\r", ret);
+	for (uint16_t ct_m = 5; (ct_m - 5) < MAX_DEVICES * 135 + 1; ct_m++) {
+		printf("%c", (char) buf[ct_m]);
+//		if (((ct_m-5)%4==0)&&((ct_m-5)!=0))
+//					{
+//				    	printf(" ");
+//					}
+		if (((ct_m - 5) % 135 == 0) && ((ct_m - 5) != 0)) {
+			printf("| %d  \n\r", ct_m - 5);
+		}
+	}
+	printf("\n\r\n\r");
+	uint8_t sensor_cont;
+	if (num_devices != 0) {
+		sensor_cont = num_devices;
+	} else {
+		sensor_cont = max_sensor;
 
-//char2_to_hex((char*) (buf + 40), (uint8_t*) buf_temp, 35);
+	}
+	for (uint16_t ct = 0; ct < sensor_cont; ct++) {
+		len = read_mess_smtp((char*) (buf + 5 + ct * 136), (uint8_t*) buf_temp);
+		memset(termo[ct].name, 0, 16);
+		memcpy(termo[ct].name, (char*) (buf_temp), len);
+		memset(buf_temp, 0, 1024);
+		printf("Name%d=%s\n\r", ct, termo[ct].name);
 
-//	termo[0].t_dw = buf[41] << 4 | buf[42];
-//	termo[0].t_up = buf[43] << 4 | buf[44];
+		memset(buf_temp, 0, 1024);
+		char2_to_hex((char*) (buf + 5 + 68 + ct * 136), (uint8_t*) buf_temp,
+				32);
+		printf("id%d=%s\n\r", ct, buf_temp);
 
-//	char2_to_hex((char*) (buf + 100), (uint8_t*) buf_temp, 70);
-//	termo[1].t_dw = buf[109] << 4 | buf[110];
-//	termo[1].t_up = buf[111] << 4 | buf[112];
+		char2_to_hex(buf_temp, termo[ct].id, 8);
+
+		printf("termo_id:%02x%02x %02x%02x %02x%02x %02x%02x\n\r",
+				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
+				termo[ct].id[6], termo[ct].id[7]);
 	}
 
 	nvs_flags.data_param = 1;
@@ -580,7 +619,7 @@ static esp_err_t thermo_web1_handler(httpd_req_t *req) {
 
 //	char buf[2048];
 	char buf_temp[256];
-	uint16_t  ct_s;
+	uint16_t ct_s;
 //	gpio_status = 0;
 	memset((uint8_t*) buf, 0, 2048);
 
@@ -594,36 +633,35 @@ static esp_err_t thermo_web1_handler(httpd_req_t *req) {
 			&& (req->uri[strlen(req->uri) + 1] == 0)) {
 		printf("\n\rGood web hook\n\r");
 		memset((uint8_t*) buf_temp, 0, 256);
-		uint8_t fault=1;
+		uint8_t fault = 1;
 		for (ct_s = 0; ct_s < max_sensor; ct_s++) {
 
 			sprintf(buf_temp, "%d", ct_s);
 
 			if ((ct_s == (req->uri[strlen(req->uri) - 1] - 0x30))
 					&& ((strlen(req->uri) - 13) == 1)) {
-				sprintf(buf, "thermo_result('ok', %d, %d)",
-						termo[ct_s].temper, termo[ct_s].status);
+				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s].temper,
+						termo[ct_s].status);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
-				fault=0;
+				fault = 0;
 			}
 
-			if (((buf_temp[0]-0x30) == (req->uri[strlen(req->uri) - 2]) - 0x30)
-					&& ((buf_temp[1]-0x30) == (req->uri[strlen(req->uri) - 1]) - 0x30)
+			if (((buf_temp[0] - 0x30) == (req->uri[strlen(req->uri) - 2]) - 0x30)
+					&& ((buf_temp[1] - 0x30)
+							== (req->uri[strlen(req->uri) - 1]) - 0x30)
 					&& ((strlen(req->uri) - 13) == 2)) {
-				sprintf(buf, "thermo_result('ok', %d, %d)",
-						termo[ct_s].temper, termo[ct_s].status);
+				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s].temper,
+						termo[ct_s].status);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
-				fault=0;
+				fault = 0;
 			}
 		}
-		if (fault==1)
-			{
+		if (fault == 1) {
 			printf("\n\rFall  web hook\n\r");
 			sprintf(buf, "thermo_result('error')");
-			}
+		}
 
-	}
-	else {
+	} else {
 		printf("\n\rFall  web hook\n\r");
 		sprintf(buf, "thermo_result('error')");
 	}
@@ -631,8 +669,8 @@ static esp_err_t thermo_web1_handler(httpd_req_t *req) {
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
-static const httpd_uri_t thermo_web1 = { .uri = "/thermo.cgi", .method = HTTP_GET,
-		.handler = thermo_web1_handler, .user_ctx = 0 };
+static const httpd_uri_t thermo_web1 = { .uri = "/thermo.cgi", .method =
+		HTTP_GET, .handler = thermo_web1_handler, .user_ctx = 0 };
 static const httpd_uri_t termo_set = { .uri = "/termo_set.cgi", .method =
 		HTTP_POST, .handler = termo_set_post_handler, .user_ctx = NULL };
 
@@ -649,24 +687,23 @@ esp_err_t save_data_termo(void) {
 
 	esp_err_t err = 0;
 
-	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_dw), termo[0].t_dw);
-	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_up), termo[0].t_up);
-	err = err | nvs_set_u8(nvs_data_handle, get_name(t0_st), termo[0].status);
+//	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_dw), termo[0].t_dw);
+//	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_up), termo[0].t_up);
+//	err = err | nvs_set_u8(nvs_data_handle, get_name(t0_st), termo[0].status);
 	err = err
 			| nvs_set_blob(nvs_data_handle, get_name(t0_name),
 					&(termo[0].name[0]), 16);
 
-	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_dw), termo[1].t_dw);
-	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_up), termo[1].t_up);
-	err = err | nvs_set_u8(nvs_data_handle, get_name(t1_st), termo[1].status);
+//	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_dw), termo[1].t_dw);
+//	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_up), termo[1].t_up);
+//	err = err | nvs_set_u8(nvs_data_handle, get_name(t1_st), termo[1].status);
 	err = err
 			| nvs_set_blob(nvs_data_handle, get_name(t1_name),
 					&(termo[1].name[0]), 16);
 
-
-	err = err
-			| nvs_set_u8(nvs_data_handle, get_name(repit_3r2),
-					termo[1].repit_3r);
+//	err = err
+//			| nvs_set_u8(nvs_data_handle, get_name(repit_3r2),
+//					termo[1].repit_3r);
 
 	return err;
 }
@@ -674,26 +711,26 @@ esp_err_t save_data_termo(void) {
 esp_err_t load_data_termo(void) {
 
 	esp_err_t err = 0;
-	uint8_t lens = 4;
+	size_t lens = 4;
 	lens = 16;
 
-	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_dw), &termo[0].t_dw);
-	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_up), &termo[0].t_up);
-	err = err | nvs_get_u8(nvs_data_handle, get_name(t0_st), &termo[0].status);
+//	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_dw), &termo[0].t_dw);
+//	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_up), &termo[0].t_up);
+//	err = err | nvs_get_u8(nvs_data_handle, get_name(t0_st), &termo[0].status);
 	err = err
 			| nvs_get_blob(nvs_data_handle, get_name(t0_name),
 					&(termo[0].name[0]), &lens);
 
-	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_dw), &termo[1].t_dw);
-	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_up), &termo[1].t_up);
-	err = err | nvs_get_u8(nvs_data_handle, get_name(t1_st), &termo[1].status);
+//	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_dw), &termo[1].t_dw);
+//	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_up), &termo[1].t_up);
+//	err = err | nvs_get_u8(nvs_data_handle, get_name(t1_st), &termo[1].status);
 	err = err
 			| nvs_get_blob(nvs_data_handle, get_name(t1_name),
 					&(termo[1].name[0]), &lens);
 
-	err = err
-			| nvs_get_u8(nvs_data_handle, get_name(repit_3r2),
-					&termo[1].repit_3r);
+//	err = err
+//			| nvs_get_u8(nvs_data_handle, get_name(repit_3r2),
+//					&termo[1].repit_3r);
 	return err;
 }
 uint8_t load_def_termo(void) {
@@ -713,5 +750,90 @@ uint8_t load_def_termo(void) {
 	return 0;
 
 }
+void log_swich_termo(char *out, log_reple_t *input_reply) {
+	char out_small[200] = { 0 };
+	sprintf(out_small, "%02d.%02d.%d  %02d:%02d:%02d [digital-termo] ",
+			input_reply->day, input_reply->month, input_reply->year,
+			input_reply->reple_hours, input_reply->reple_minuts,
+			input_reply->reple_seconds);
+	strcat(out, out_small);
+	switch (input_reply->type_event) {
 
+	case TERMO_START:
+		sprintf(out_small, "Start module termo\n\r");
+		break;
+//	case TERMO_CLRE:
+//		sprintf(out_small, "%s %s\n\r", IN_PORT[input_reply->line].name,
+//				IN_PORT[input_reply->line].clr_name);
+//		break;
+//	case TERMO_SETE:
+//		sprintf(out_small, "%s %s\n\r", IN_PORT[input_reply->line].name,
+//				IN_PORT[input_reply->line].set_name);
+//		break;
+
+	case TERMO_FINDOK:
+		sprintf(out_small,
+				"New sensor id=%02x%02x %02x%02x %02x%02x %02x%02x temperature=%f\n\r",
+				termo[input_reply->line].id[0], termo[input_reply->line].id[1],
+				termo[input_reply->line].id[2], termo[input_reply->line].id[3],
+				termo[input_reply->line].id[4], termo[input_reply->line].id[5],
+				termo[input_reply->line].id[6], termo[input_reply->line].id[7],
+				termo[input_reply->line].ftemper);
+		break;
+	case TERMO_SETT:
+		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
+				"��������� ��������");
+		break;
+	case TERMO_ERR:
+		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
+				"������ ������");
+		break;
+	default:
+		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
+				"������ �������");
+	}
+	strcat(out, out_small);
+}
+void log_start_termo(void) {
+	xSemaphoreTake(flag_global_save_log, (TickType_t ) 1000);
+	{
+		for (uint8_t ct_l = 0; ct_l < 16; ct_l++) {
+			if (FW_data.log.source[ct_l] == NULLS) {
+				FW_data.log.source[ct_l] = TERMO;
+				//	memcpy(&(FW_data.log.header[ct_l][0]), (char*)"[digital-inputs]",sizeof("[digital-inputs]"));
+				FW_data.log.fswich_point[ct_l] = log_swich_termo;
+				ct_l = 17;
+			}
+		}
+	}
+	xSemaphoreGive(flag_global_save_log);
+	log_termo_save_mess(TERMO_START, 0);
+}
+
+void log_termo_save_mess(uint8_t event, uint8_t line) {
+	xSemaphoreTake(flag_global_save_log, (TickType_t ) 1000);
+	{
+		log_reple_t save_reply;
+		GET_reple(&save_reply);
+		save_reply.line = line;
+		save_reply.type_event = event;
+		save_reply.source = TERMO;
+		save_reple_log(save_reply);
+
+	}
+	xSemaphoreGive(flag_global_save_log);
+}
+void log_termo_event_cntl(FW_termo_t *termo, uint8_t line) {
+//	if (inpin->event == 1) {
+//		if (inpin->sost_rise == 1) {
+//			log_in_save_mess(TERMO_SETE, line);
+//			inpin->sost_rise = 0;
+//		}
+//		if (inpin->sost_fall == 1) {
+//			log_in_save_mess(TERMO_CLRE, line);
+//			inpin->sost_fall = 0;
+//		}
+//		inpin->event = 0;
+//	}
+}
 #endif

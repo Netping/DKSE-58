@@ -88,7 +88,8 @@ enum logs_source_t {
   OUT,
   TERM,
   UPD,
-  NTF
+  NTF,
+  TERMO
 };
 
 

@@ -3,12 +3,12 @@
 <!-- source is in UTF-8, packed and served in windows-1251! -->
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta charset="UTF-8"/>
-<title>Веб-интерфейс</title>
+<title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
 <link rel="stylesheet" href="index.css">
 <script src="setup_get.cgi"></script>
 <!--script src="devname.cgi"></script-->
 <!--temp scripts-->
-<script type="text/javascript" src="temp_sett.js"></script>
+<!--script type="text/javascript" src="temp_sett.js"></script-->
 <!--end temp scripts-->
 <script src="menu.js" charset="utf-8"></script>
 <!--script src="menu_get.cgi"></script-->
@@ -290,7 +290,7 @@ function active_settings(actsett)
 <body>
 
 <script>
-menu('Настройки');
+menu('РќР°СЃС‚СЂРѕР№РєРё');
 menu_adjust(menu_data);
 </script>
 
@@ -298,60 +298,60 @@ menu_adjust(menu_data);
 <div id="push_margin"></div>
 <div>
 <form name="frm_mib2" action="settings.html" method="post"  onsubmit="return chkfrm(0)">
-<h2 style="margin-top:10px">ОБЩАЯ ИНФОРМАЦИЯ</h2>
+<h2 style="margin-top:10px">РћР‘Р©РђРЇ РРќР¤РћР РњРђР¦РРЇ</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <script>
 l='';
-l+=input('Имя устройства (hostname, только латинские буквы, цифры, \'-\')','hostname','maxlength="62" onkeyup="okp(this)"');
-l+=input('Местонахождение устройства','location','maxlength="62" onkeyup="okp(this)"');
-l+=input('Контактные данные','contact','maxlength="62" onkeyup="okp(this)"');
+l+=input('РРјСЏ СѓСЃС‚СЂРѕР№СЃС‚РІР° (hostname, С‚РѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ Р±СѓРєРІС‹, С†РёС„СЂС‹, \'-\')','hostname','maxlength="62" onkeyup="okp(this)"');
+l+=input('РњРµСЃС‚РѕРЅР°С…РѕР¶РґРµРЅРёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°','location','maxlength="62" onkeyup="okp(this)"');
+l+=input('РљРѕРЅС‚Р°РєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ','contact','maxlength="62" onkeyup="okp(this)"');
 document.write(l);
 </script>
 </table>
 </form>
 
 <form name="frm_if" action="settings.html" method="post"  onsubmit="return chkfrm(1)">
-<h2>НАСТРОЙКИ СЕТИ</h2>
+<h2>РќРђРЎРўР РћР™РљР РЎР•РўР</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <tr>
-<td class="parname">Включить DHCP</td>
+<td class="parname">Р’РєР»СЋС‡РёС‚СЊ DHCP</td>
 <td class=parinput><input type="checkbox" name="dhcp0" onclick="dhcpclick();"/></td>
 </tr>
 <script>
 l='';
-l+=input('MAC адрес','mac', 'disabled');
-l+=input('IP адрес','ip');
-l+=input('Маска подсети','mask');
-l+=input('Шлюз','gate');
-l+=input('DNS сервер','dns_ip1');
-l+=input('Порт HTTP сервера','http_port');
-l+=input('Порт SNMP сервера','snmp_port');
+l+=input('MAC Р°РґСЂРµСЃ','mac', 'disabled');
+l+=input('IP Р°РґСЂРµСЃ','ip');
+l+=input('РњР°СЃРєР° РїРѕРґСЃРµС‚Рё','mask');
+l+=input('РЁР»СЋР·','gate');
+l+=input('DNS СЃРµСЂРІРµСЂ','dns_ip1');
+l+=input('РџРѕСЂС‚ HTTP СЃРµСЂРІРµСЂР°','http_port');
+l+=input('РџРѕСЂС‚ SNMP СЃРµСЂРІРµСЂР°','snmp_port');
 document.write(l);
 </script>
 </table>
 </form>
 
 <form name="frm_acc" action="settings.html" method="post" onsubmit="return chkfrm(0)">
-<h2>НАСТРОЙКА ДОСТУПА</h2>
+<h2>РќРђРЎРўР РћР™РљРђ Р”РћРЎРўРЈРџРђ</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <script>
 l='';
-l+=input('Имя пользователя','uname','maxlength="16"');
-l+='<tr><td class="parname">Пароль</td>'+
+l+=input('РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ','uname','maxlength="16"');
+l+='<tr><td class="parname">РџР°СЂРѕР»СЊ</td>'+
 '<td class="parinput"><input type="password" maxlength="16" name="passwd0" value="'+escq(data[0].passwd)+'"></td></tr>';
-l+=input('Community чтения','community_r','maxlength="16"');
-l+=input('Community записи','community_w','maxlength="16"');
-l+=input('Фильтр доступа IP','filt_ip1');
-l+=input('Подсеть доступа IP (0.0.0.0 - отключить фильтр)','filt_mask1');
+l+=input('Community С‡С‚РµРЅРёСЏ','community_r','maxlength="16"');
+l+=input('Community Р·Р°РїРёСЃРё','community_w','maxlength="16"');
+l+=input('Р¤РёР»СЊС‚СЂ РґРѕСЃС‚СѓРїР° IP','filt_ip1');
+l+=input('РџРѕРґСЃРµС‚СЊ РґРѕСЃС‚СѓРїР° IP (0.0.0.0 - РѕС‚РєР»СЋС‡РёС‚СЊ С„РёР»СЊС‚СЂ)','filt_mask1');
 document.write(l);
 </script>
 </table>
@@ -361,27 +361,27 @@ document.write(l);
 <h2>SNMP Trap</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <script>
 l='';
-var tr='для посылки Trap сообщений';
-l+=hn_input('Адрес 1 '+tr,'trap_ip1','trap_hostname1');
-l+=hn_input('Адрес 2 '+tr,'trap_ip2','trap_hostname2');
+var tr='РґР»СЏ РїРѕСЃС‹Р»РєРё Trap СЃРѕРѕР±С‰РµРЅРёР№';
+l+=hn_input('РђРґСЂРµСЃ 1 '+tr,'trap_ip1','trap_hostname1');
+l+=hn_input('РђРґСЂРµСЃ 2 '+tr,'trap_ip2','trap_hostname2');
 document.write(l);
 </script>
 <tr>
-<td class="parname">Периодическая посылка трапов (дополнительно к уведомлениям)
+<td class="parname">РџРµСЂРёРѕРґРёС‡РµСЃРєР°СЏ РїРѕСЃС‹Р»РєР° С‚СЂР°РїРѕРІ (РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ Рє СѓРІРµРґРѕРјР»РµРЅРёСЏРј)
 <td class="parinput">
 <select name="trap_refresh">
-<option value="0">Выкл</option>
-<option value="5">5 мин</option>
-<option value="10">10 мин</option>
-<option value="15">15 мин</option>
-<option value="30">30 мин</option>
-<option value="60">1 ч</option>
-<option value="120">2 ч</option>
-<option value="240">4 ч</option>
+<option value="0">Р’С‹РєР»</option>
+<option value="5">5 РјРёРЅ</option>
+<option value="10">10 РјРёРЅ</option>
+<option value="15">15 РјРёРЅ</option>
+<option value="30">30 РјРёРЅ</option>
+<option value="60">1 С‡</option>
+<option value="120">2 С‡</option>
+<option value="240">4 С‡</option>
 </select>
 </table>
 </form>
@@ -390,13 +390,13 @@ document.write(l);
 <h2>Syslog</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <script>
 l='';
-l+=hn_input('Адрес SysLog 1','syslog_ip1','syslog_hostname1');
-l+=hn_input('Адрес SysLog 2','syslog_ip2','syslog_hostname2');
-l+=hn_input('Адрес SysLog 3','syslog_ip3','syslog_hostname3');
+l+=hn_input('РђРґСЂРµСЃ SysLog 1','syslog_ip1','syslog_hostname1');
+l+=hn_input('РђРґСЂРµСЃ SysLog 2','syslog_ip2','syslog_hostname2');
+l+=hn_input('РђРґСЂРµСЃ SysLog 3','syslog_ip3','syslog_hostname3');
 l+=input('Syslog Facility', 'facility');
 l+=input('Syslog Severity', 'severity');
 document.write(l);
@@ -405,20 +405,20 @@ document.write(l);
 </form>
 
 <form name="frm_ntp" action="settings.html" method="post" onsubmit="return chkfrm(0)">
-<h2>НАСТРОЙКИ NTP</h2>
+<h2>РќРђРЎРўР РћР™РљР NTP</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <script>
 l='';
-l+=hn_input('NTP сервер 1','ntp_ip1','ntp_hostname1');
-l+=hn_input('NTP сервер 2','ntp_ip2','ntp_hostname2');
-l+=input('Часовой пояс (-12..12)', 'timezone');
+l+=hn_input('NTP СЃРµСЂРІРµСЂ 1','ntp_ip1','ntp_hostname1');
+l+=hn_input('NTP СЃРµСЂРІРµСЂ 2','ntp_ip2','ntp_hostname2');
+l+=input('Р§Р°СЃРѕРІРѕР№ РїРѕСЏСЃ (-12..12)', 'timezone');
 document.write(l);
 </script>
 <tr>
-<td class="parname">Летнее время (DST)</td>
+<td class="parname">Р›РµС‚РЅРµРµ РІСЂРµРјСЏ (DST)</td>
 <td class=parinput><input type="checkbox" name="dst0"></td>
 </tr>
 </table>
@@ -429,30 +429,30 @@ active_settings(data[0].active_settings);
 </script>
 
 <form name="frm_rtc" onsubmit="try {chkfrm_rtc();} catch(e){}; return false;">
-<h2>ВСТРОЕННЫЕ ЧАСЫ (RTC)</h2>
+<h2>Р’РЎРўР РћР•РќРќР«Р• Р§РђРЎР« (RTC)</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <tr>
-<td class="parname">Текущее время и дата</td>
+<td class="parname">РўРµРєСѓС‰РµРµ РІСЂРµРјСЏ Рё РґР°С‚Р°</td>
 <td class="parinput" id="now"></td>
 </tr>
 <tr>
-<td class="parname">Новое время и дата (14 цифр в формате ДДММГГГГЧЧММСС без пробелов)</td>
+<td class="parname">РќРѕРІРѕРµ РІСЂРµРјСЏ Рё РґР°С‚Р° (14 С†РёС„СЂ РІ С„РѕСЂРјР°С‚Рµ Р”Р”РњРњР“Р“Р“Р“Р§Р§РњРњРЎРЎ Р±РµР· РїСЂРѕР±РµР»РѕРІ)</td>
 <td class="parinput"><input type="text" maxlength="14" name="newdate"></td>
 </tr>
 </table>
 </form>
 
 <form name="frm_powersaving" style="display:none" action="settings.html" method="post" onsubmit="return chkfrm(0)">
-<h2>ЭКОНОМИЯ ЭНЕРГИИ ПРИ ПИТАНИИ ОТ АККУМУЛЯТОРА</h2>
+<h2>Р­РљРћРќРћРњРРЇ Р­РќР•Р Р“РР РџР Р РџРРўРђРќРР РћРў РђРљРљРЈРњРЈР›РЇРўРћР Рђ</h2>
 <table>
 <caption class="send_button_container">
-<input type="submit" value="Применить изменения">
+<input type="submit" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ">
 </caption>
 <tr>
-<td class="parname">Отключить Ethernet при переходе на аккумулятор (после посылки уведомлений)</td>
+<td class="parname">РћС‚РєР»СЋС‡РёС‚СЊ Ethernet РїСЂРё РїРµСЂРµС…РѕРґРµ РЅР° Р°РєРєСѓРјСѓР»СЏС‚РѕСЂ (РїРѕСЃР»Рµ РїРѕСЃС‹Р»РєРё СѓРІРµРґРѕРјР»РµРЅРёР№)</td>
 <td class="parinput"><input type="checkbox" name="powersaving_enet" /></td>
 </tr>
 </table>
@@ -465,7 +465,7 @@ function su_send_next_part()
 {
  if(24+su_offset>=frm_eeprom.file_inp.files[0].size)
  {
-  getid('su_status').innerHTML="Загрузка настроек завершена успешно.";
+  getid('su_status').innerHTML="Р—Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє Р·Р°РІРµСЂС€РµРЅР° СѓСЃРїРµС€РЅРѕ.";
   return;
  }
  var h=Uint8Array.of(0xfa,0xde,0,0,su_offset&255,(su_offset>>8)&255,(su_offset>>16)&255,0);
@@ -479,10 +479,10 @@ function su_send_next_part()
  r.timeout=6000;
  r.onloadend=function(){
   if(this.status!=200)
-   getid('su_status').innerHTML="Cбой HTTP, загрузка настроек прервана!\nНеобходимо физически сбросить настройки кнопкой RESET!";
+   getid('su_status').innerHTML="CР±РѕР№ HTTP, Р·Р°РіСЂСѓР·РєР° РЅР°СЃС‚СЂРѕРµРє РїСЂРµСЂРІР°РЅР°!\nРќРµРѕР±С…РѕРґРёРјРѕ С„РёР·РёС‡РµСЃРєРё СЃР±СЂРѕСЃРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё РєРЅРѕРїРєРѕР№ RESET!";
   else
   {
-   getid('su_status').innerHTML='закончено '+Math.round(su_offset/frm_eeprom.file_inp.files[0].size*100)+'%';
+   getid('su_status').innerHTML='Р·Р°РєРѕРЅС‡РµРЅРѕ '+Math.round(su_offset/frm_eeprom.file_inp.files[0].size*100)+'%';
    su_send_next_part();
   }
  }
@@ -496,7 +496,7 @@ function upload_eeprom()
   var sig=new Uint8Array(reader.result,0,16).join('');
   if(sig!='5471107106488311010949995710965995353')
   {
-   getid('su_status').innerHTML='Этот файл не содержит образа настроек!';
+   getid('su_status').innerHTML='Р­С‚РѕС‚ С„Р°Р№Р» РЅРµ СЃРѕРґРµСЂР¶РёС‚ РѕР±СЂР°Р·Р° РЅР°СЃС‚СЂРѕРµРє!';
    return;
   }
   var d=new Uint8Array(reader.result,16,8);
@@ -504,28 +504,28 @@ function upload_eeprom()
   var vb=fwver.replace(/[A-Z]/,'*');
   if(va!=vb)
   {
-   getid('su_status').innerHTML='Образ настроек не совместим!';
+   getid('su_status').innerHTML='РћР±СЂР°Р· РЅР°СЃС‚СЂРѕРµРє РЅРµ СЃРѕРІРјРµСЃС‚РёРј!';
    return;
   }
   su_send_next_part();
  };
  su_offset=0;
- getid('su_status').innerHTML='закончено 0%'
+ getid('su_status').innerHTML='Р·Р°РєРѕРЅС‡РµРЅРѕ 0%'
  reader.readAsArrayBuffer(f);
 }
 </script>
 
 <form name="frm_eeprom">
-<h2>СОХРАНЕНИЕ, ВОСТАНОВЛЕНИЕ, КЛОНИРОВАНИЕ ВСЕХ НАСТРОЕК</h2>
+<h2>РЎРћРҐР РђРќР•РќРР•, Р’РћРЎРўРђРќРћР’Р›Р•РќРР•, РљР›РћРќРР РћР’РђРќРР• Р’РЎР•РҐ РќРђРЎРўР РћР•Рљ</h2>
 <table>
 <tr>
-<td class="parname">Операции с бинарным файлом настроек
+<td class="parname">РћРїРµСЂР°С†РёРё СЃ Р±РёРЅР°СЂРЅС‹Рј С„Р°Р№Р»РѕРј РЅР°СЃС‚СЂРѕРµРє
 <td class="parinput">
 <input type="file" name="file_inp" style="display:none" onchange="upload_eeprom()">
-<input type="button" value="Выгрузить" onclick="location.href='/eeprom_clone_get.cgi'">
-<input type="button" value="Загрузить" onclick="frm_eeprom.file_inp.click()">
+<input type="button" value="Р’С‹РіСЂСѓР·РёС‚СЊ" onclick="location.href='/eeprom_clone_get.cgi'">
+<input type="button" value="Р—Р°РіСЂСѓР·РёС‚СЊ" onclick="frm_eeprom.file_inp.click()">
 <tr>
-<td class="parname">Статус
+<td class="parname">РЎС‚Р°С‚СѓСЃ
 <td class="parinput" id="su_status">-
 </table>
 </form>

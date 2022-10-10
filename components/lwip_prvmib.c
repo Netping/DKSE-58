@@ -142,14 +142,14 @@ static const struct snmp_table_col_def sensor_table_columns5[] = { { 14,
 SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_WRITE }, { 15,
 SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_WRITE } };
 
-static const struct snmp_table_col_def termo_table_columns[] = { { 1,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY }, { 2,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY }, { 3,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY }, { 4,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY }, { 5,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY }, { 6,
-SNMP_ASN1_TYPE_OCTET_STRING, SNMP_NODE_INSTANCE_READ_ONLY }, { 7,
-SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY } };
+static const struct snmp_table_col_def termo_table_columns[] = {
+{ 1,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY },
+{ 2,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY },
+{ 3,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY },
+//{ 4,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY },
+//{ 5,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY },
+{ 6,SNMP_ASN1_TYPE_OCTET_STRING, SNMP_NODE_INSTANCE_READ_ONLY },
+{ 7,SNMP_ASN1_TYPE_INTEGER, SNMP_NODE_INSTANCE_READ_ONLY } };
 
 /* sensortable .1.3.6.1.4.1.26381.1.1 */
 static const struct snmp_table_node sensor_table = SNMP_TABLE_CREATE(1,
@@ -271,8 +271,7 @@ static const struct snmp_tree_node io_node = SNMP_CREATE_TREE_NODE(1, io_nodes);
 static const struct snmp_tree_node o_node = SNMP_CREATE_TREE_NODE(1, o_nodes);
 
 static const struct snmp_tree_node np_node = SNMP_CREATE_TREE_NODE(1, np_nodes);
-static const struct snmp_tree_node termo_node =
-SNMP_CREATE_TREE_NODE(1, termo_nodes);
+static const struct snmp_tree_node termo_node =SNMP_CREATE_TREE_NODE(1, termo_nodes);
 
 ///{ 1,3,6,1,4,1,26381,1 }
 static const u32_t prvmib_base_oid[] = { 1, 3, 6, 1, 4, 1, 25728, 8900 };
@@ -318,7 +317,7 @@ void lwip_privmib_init(void) {
 		/* !SENSORS_USE_FILES */
 	}
 #if  MAIN_APP_OWB_H_ == 1
-//	lwip_privmib_init_termo();
+	lwip_privmib_init_termo();
 
 #endif
 
@@ -365,12 +364,12 @@ static s16_t termo_count_get_value(struct snmp_node_instance *instance,
 	ESP_LOGI("SNMP", "termo_count_get_value");
 	LWIP_UNUSED_ARG(instance);
 
-//	for (count = 0; count < LWIP_ARRAYSIZE(termo); count++) {
-//		if (termo_snmp[count].num == 0) {
-//			*uint_ptr = (u32_t) count;
-//			return sizeof(*uint_ptr);
-//		}
-//	}
+	for (count = 0; count < num_devices; count++) {
+		if (termo_snmp[count].num == 0) {
+			*uint_ptr = (u32_t) count;
+			return sizeof(*uint_ptr);
+		}
+	}
 
 	return 0;
 }
@@ -432,7 +431,7 @@ static snmp_err_t out_table_get_cell_instance(const u32_t *column,
 	sensor_num = row_oid[0];
 
 	/* find sensor with index */
-	for (i = 0; i < in_port_n; i++) {
+	for (i = 0; i < out_port_n; i++) {
 		if (sensors[i].num != 0) {
 			if (sensors[i].num == sensor_num) {
 				/* store sensor index for subsequent operations (get/test/set) */
@@ -497,15 +496,15 @@ static snmp_err_t termo_table_get_cell_instance(const u32_t *column,
 
 	/* find sensor with index */
 
-//	for (i = 0; i < LWIP_ARRAYSIZE(termo); i++) {
-//		if (termo_snmp[i].num != 0) {
-//			if (termo_snmp[i].num == termo_num) {
-//			   // store sensor index for subsequent operations (get/test/set)
-//				cell_instance->reference.u32 = (u32_t) i;
-//				return SNMP_ERR_NOERROR;
-//			}
-//		}
-//	}
+	for (i = 0; i < num_devices; i++) {
+		if (termo_snmp[i].num != 0) {
+			if (termo_snmp[i].num == termo_num) {
+			   // store sensor index for subsequent operations (get/test/set)
+				cell_instance->reference.u32 = (u32_t) i;
+				return SNMP_ERR_NOERROR;
+			}
+		}
+	}
 	/* not found */
 	return SNMP_ERR_NOSUCHINSTANCE;
 }
@@ -633,17 +632,17 @@ static snmp_err_t termo_table_get_next_cell_instance(const u32_t *column,
 			LWIP_ARRAYSIZE(termo_table_oid_ranges));
 
 	/* iterate over all possible OIDs to find the next one */
-//	for (i = 0; i < LWIP_ARRAYSIZE(termo); i++) {
-//		if (termo_snmp[i].num != 0) {
-//			u32_t test_oid[LWIP_ARRAYSIZE(termo_table_oid_ranges)];
-//
-//			test_oid[0] = termo_snmp[i].num;
-//
-//			/* check generated OID: is it a candidate for the next one? */
-//			snmp_next_oid_check(&state, test_oid,
-//					LWIP_ARRAYSIZE(termo_table_oid_ranges), (void*) i);
-//		}
-//	}
+	for (i = 0; i < num_devices; i++) {
+		if (termo_snmp[i].num != 0) {
+			u32_t test_oid[LWIP_ARRAYSIZE(termo_table_oid_ranges)];
+
+			test_oid[0] = termo_snmp[i].num;
+
+			/* check generated OID: is it a candidate for the next one? */
+			snmp_next_oid_check(&state, test_oid,
+					LWIP_ARRAYSIZE(termo_table_oid_ranges), (void*) i);
+		}
+	}
 	/* did we find a next one? */
 	if (state.status == SNMP_NEXT_OID_STATUS_SUCCESS) {
 		snmp_oid_assign(row_oid, state.next_oid, state.next_oid_len);
@@ -838,14 +837,14 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 	case 1: /* ������������� ������������, ����� �� 1 �� 8 ������������ */
 
 		if (i < 2) {
-			*temperature = i; // (FW_data.termo[1].id[0]<<56)|(FW_data.termo[1].id[1]<<48)|(FW_data.termo[1].id[2]<<40)|(FW_data.termo[1].id[3]<<32)|(FW_data.termo[1].id[4]<<24)|(FW_data.termo[1].id[5]<<16)|(FW_data.termo[1].id[6]<<8)|(FW_data.termo[1].id[7]);
+			*temperature = (termo[i].id[0]<<56)|(termo[i].id[1]<<48)|(termo[i].id[2]<<40)|(termo[i].id[3]<<32)|(termo[i].id[4]<<24)|(termo[i].id[5]<<16)|(termo[i].id[6]<<8)|(termo[i].id[7]);
 			return sizeof(s32_t);
 		} else {
 			return 0;
 		}
 	case 2: /* ������� ����������� �� ������������, �C, ��� n � ����� ������� */
 		if (i < 2) {
-//			*temperature = termo[i].temper;
+			*temperature = termo[i].temper;
 			return sizeof(s32_t);
 		} else {
 			return 0;
@@ -853,38 +852,38 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 
 	case 3: /* ������ ������������, ��� n � ����� �������: */
 		if (i < 2) {
-//			*temperature = termo[i].status;
+			*temperature = termo[i].status;
 			ESP_LOGI("Snmp_agent", "hELLO");
 			return sizeof(s32_t);
 		} else {
 			return 0;
 		}
 
-	case 4: /* ������ ������� ��������� ���������� �������� �����������, �C, ��� n � ����� ������� */
-		if (i < 2) {
-//			*temperature = termo[i].t_dw;
-			return sizeof(s32_t);
-		} else {
-			return 0;
-		}
-	case 5: /* ������� ������� ��������� ���������� �������� �����������, �C, ��� n � ����� ������� */
-		if (i < 2) {
-//			*temperature = termo[i].t_up;
-			return sizeof(s32_t);
-		} else {
-			return 0;
-		}
-	case 6: /* file name */
+//	case 4: /* ������ ������� ��������� ���������� �������� �����������, �C, ��� n � ����� ������� */
 //		if (i < 2) {
-//
-//			MEMCPY(value, termo[i].name, strlen(termo[i].name));
-//			return (s16_t) strlen(termo[i].name);
+////			*temperature = termo[i].t_dw;
+//			return sizeof(s32_t);
 //		} else {
 //			return 0;
 //		}
+//	case 5: /* ������� ������� ��������� ���������� �������� �����������, �C, ��� n � ����� ������� */
+//		if (i < 2) {
+////			*temperature = termo[i].t_up;
+//			return sizeof(s32_t);
+//		} else {
+//			return 0;
+//		}
+	case 6: /* file name */
+		if (i < 2) {
+
+			MEMCPY(value, termo[i].name, strlen(termo[i].name));
+			return (s16_t) strlen(termo[i].name);
+		} else {
+			return 0;
+		}
 	case 7: /* sensor value */
 		if (i < 2) {
-			//	*temperature = 1000 * termo[i].ftemper;
+				*temperature = 1000 * termo[i].ftemper;
 			return sizeof(s32_t);
 		} else {
 			return 0;

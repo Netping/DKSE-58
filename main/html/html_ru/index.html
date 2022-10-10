@@ -3,14 +3,14 @@
 <!-- source is in UTF-8, packed and served in windows-1251! -->
 <meta http-equiv=Content-Type content="text/html; charset="utf-8">
 <meta charset="UTF-8"/>
-<title>Веб-интерфейс</title>
+<title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
 <link rel="stylesheet" href="index.css" >
 <!--script src="devname.cgi"></script-->
 <script src="menu.js" charset="utf-8"></script>
 <!--script src="menu_get.cgi"></script-->
 <script src="setup_get.cgi"></script>
 <!--temp scripts-->
-<script type="text/javascript" src="temp_sett.js"></script>
+<!--script type="text/javascript" src="temp_sett.js"></script-->
 <!--end temp scripts-->
 <style>
 body {min-width:1250px;}
@@ -35,7 +35,7 @@ caption {caption-side:bottom;}
 <body>
 <script>
 
-menu('Главная страница');
+menu('Р“Р»Р°РІРЅР°СЏ СЃС‚СЂР°РЅРёС†Р°');
 menu_adjust(menu_data);
 
 function getid(id) {return document.getElementById(id);}
@@ -50,43 +50,43 @@ return l;
 </script>
 <div id="middle" align="center">
 <div id="push_margin" style="height:1px"></div>
-<!--h2>ИНФОРМАЦИЯ</h2-->
+<!--h2>РРќР¤РћР РњРђР¦РРЇ</h2-->
 <div>
 <form action="/newserial.cgi" method="POST">
 <table>
-<tr><th colspan="2" style="text-align:center;" class="cpt">ИНФОРМАЦИЯ<th><tr>
+<tr><th colspan="2" style="text-align:center;" class="cpt">РРќР¤РћР РњРђР¦РРЇ<th><tr>
 <script>
 l='';
-l+=field('Имя устройства',data.hostname);
-l+=field('Местонахождение устройства',data.location);
-l+=field('Контактные данные',data.contact);
-l+=field('Серийный номер', data.serialnum==0xffffffff?'<input type="submit" value="generate&save"/>':data.serial);
-l+=field('MAC адрес',data.mac);
-l+=field('Модель устройсва',devname);
-l+=field('Версия ПО',fwver);
-l+=field('Версия железа','1.'+hwver);
+l+=field('РРјСЏ СѓСЃС‚СЂРѕР№СЃС‚РІР°',data.hostname);
+l+=field('РњРµСЃС‚РѕРЅР°С…РѕР¶РґРµРЅРёРµ СѓСЃС‚СЂРѕР№СЃС‚РІР°',data.location);
+l+=field('РљРѕРЅС‚Р°РєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ',data.contact);
+l+=field('РЎРµСЂРёР№РЅС‹Р№ РЅРѕРјРµСЂ', data.serialnum==0xffffffff?'<input type="submit" value="generate&save"/>':data.serial);
+l+=field('MAC Р°РґСЂРµСЃ',data.mac);
+l+=field('РњРѕРґРµР»СЊ СѓСЃС‚СЂРѕР№СЃРІР°',devname);
+l+=field('Р’РµСЂСЃРёСЏ РџРћ',fwver);
+l+=field('Р’РµСЂСЃРёСЏ Р¶РµР»РµР·Р°','1.'+hwver);
 var s=Math.floor(uptime_100ms/10);
 var m=Math.floor(s/60); s=s%60;
 var h=Math.floor(m/60); m=m%60;
 var d=Math.floor(h/24); h=h%24;
-l+=field('Время непрерывной работы', '' + d + 'д ' + h + 'ч ' + m + 'м ' + s + 'с');
+l+=field('Р’СЂРµРјСЏ РЅРµРїСЂРµСЂС‹РІРЅРѕР№ СЂР°Р±РѕС‚С‹', '' + d + 'Рґ ' + h + 'С‡ ' + m + 'Рј ' + s + 'СЃ');
 document.write(l);
 </script>
 </table>
 </form>
 
-<!--h2>НАСТРОЙКА СЕТИ</h2-->
+<!--h2>РќРђРЎРўР РћР™РљРђ РЎР•РўР</h2-->
 <form name="reboot_frm" action="/reboot.cgi" method="POST">
 <table>
 <caption class="send_button_container">
-<input type="button" value="Применить изменения" onclick="getid('reboot_dlg').style.visibility='visible'"/>
+<input type="button" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ" onclick="getid('reboot_dlg').style.visibility='visible'"/>
 </caption>
-<tr><th colspan="2" style="text-align:center;" class="cpt">НАСТРОЙКА СЕТИ<th><tr>
+<tr><th colspan="2" style="text-align:center;" class="cpt">РќРђРЎРўР РћР™РљРђ РЎР•РўР<th><tr>
 <script>
 l='';
-l+=field('IP адрес',data.ip);
-l+=field('Маска подсети',data.mask);
-l+=field('Шлюз',data.gate);
+l+=field('IP Р°РґСЂРµСЃ',data.ip);
+l+=field('РњР°СЃРєР° РїРѕРґСЃРµС‚Рё',data.mask);
+l+=field('РЁР»СЋР·',data.gate);
 document.write(l);
 </script>
 </table>
@@ -95,14 +95,14 @@ document.write(l);
 </div>
 
 <div class="dialog" id="reboot_dlg">
-<p><span style="color:green;font-weight:bold">ВНИМАНИЕ!</span> Во время перезагрузки прошивки состояние IO линий и реле 
-может кратковременно измениться. Также, состояние IO линий и реле может измениться в результате рестарта модуля логики. 
-Продолжить перезагрузку?
+<p><span style="color:green;font-weight:bold">Р’РќРРњРђРќРР•!</span> Р’Рѕ РІСЂРµРјСЏ РїРµСЂРµР·Р°РіСЂСѓР·РєРё РїСЂРѕС€РёРІРєРё СЃРѕСЃС‚РѕСЏРЅРёРµ IO Р»РёРЅРёР№ Рё СЂРµР»Рµ 
+РјРѕР¶РµС‚ РєСЂР°С‚РєРѕРІСЂРµРјРµРЅРЅРѕ РёР·РјРµРЅРёС‚СЊСЃСЏ. РўР°РєР¶Рµ, СЃРѕСЃС‚РѕСЏРЅРёРµ IO Р»РёРЅРёР№ Рё СЂРµР»Рµ РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ СЂРµСЃС‚Р°СЂС‚Р° РјРѕРґСѓР»СЏ Р»РѕРіРёРєРё. 
+РџСЂРѕРґРѕР»Р¶РёС‚СЊ РїРµСЂРµР·Р°РіСЂСѓР·РєСѓ?
 </span>
 </p>
 <div class="send_button_container">
-<input type="button" value="Отменить" onclick="getid('reboot_dlg').style.visibility='hidden'" />
-<input type="button" value="Продолжить" onclick="getid('reboot_dlg').style.visibility='hidden'; document.reboot_frm.submit();" />
+<input type="button" value="РћС‚РјРµРЅРёС‚СЊ" onclick="getid('reboot_dlg').style.visibility='hidden'" />
+<input type="button" value="РџСЂРѕРґРѕР»Р¶РёС‚СЊ" onclick="getid('reboot_dlg').style.visibility='hidden'; document.reboot_frm.submit();" />
 </div>
 </div><!--dialog-->
 </div><!--#middle-->
