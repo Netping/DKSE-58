@@ -736,14 +736,14 @@ esp_err_t load_data_termo(void) {
 uint8_t load_def_termo(void) {
 
 	memset((uint8_t*) termo[0].name, 0, 16);
-	memcpy((uint8_t*) termo[0].name, (uint8_t*) "Termo1", sizeof("Termo1"));
+	memcpy((uint8_t*) termo[0].name, (uint8_t*) "Термодатчик1", sizeof("Термодатчик1"));
 
 	termo[0].t_up = 30;
 	termo[0].t_dw = 10;
 	termo[0].status = 2;
 
 	memset((uint8_t*) termo[1].name, 0, 16);
-	memcpy((uint8_t*) termo[1].name, (uint8_t*) "Termo2", sizeof("Termo2"));
+	memcpy((uint8_t*) termo[1].name, (uint8_t*) "Термодатчик2", sizeof("Термодатчик2"));
 	termo[1].t_up = 30;
 	termo[1].t_dw = 10;
 	termo[1].status = 2;
@@ -760,7 +760,7 @@ void log_swich_termo(char *out, log_reple_t *input_reply) {
 	switch (input_reply->type_event) {
 
 	case TERMO_START:
-		sprintf(out_small, "Start module termo\n\r");
+		sprintf(out_small, "Старт модуля термо датчиков v%d.%d\n\r",term_ver,term_rev);
 		break;
 //	case TERMO_CLRE:
 //		sprintf(out_small, "%s %s\n\r", IN_PORT[input_reply->line].name,
@@ -773,7 +773,7 @@ void log_swich_termo(char *out, log_reple_t *input_reply) {
 
 	case TERMO_FINDOK:
 		sprintf(out_small,
-				"New sensor id=%02x%02x %02x%02x %02x%02x %02x%02x temperature=%f\n\r",
+				"Обнаружен новый датчик id=%02x%02x %02x%02x %02x%02x %02x%02x температура=%f\n\r",
 				termo[input_reply->line].id[0], termo[input_reply->line].id[1],
 				termo[input_reply->line].id[2], termo[input_reply->line].id[3],
 				termo[input_reply->line].id[4], termo[input_reply->line].id[5],
@@ -782,15 +782,15 @@ void log_swich_termo(char *out, log_reple_t *input_reply) {
 		break;
 	case TERMO_SETT:
 		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
-				"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
+				"Изменение настроек");
 		break;
 	case TERMO_ERR:
 		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
-				"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
+				"Ошибка датчика");
 		break;
 	default:
 		sprintf(out_small, "%s %s", IN_PORT[input_reply->line].name,
-				"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ");
+				"Ошибка модуля");
 	}
 	strcat(out, out_small);
 }

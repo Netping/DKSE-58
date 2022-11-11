@@ -13,13 +13,14 @@
 #include "esp_sleep.h"
 #include "../main/LOGS.h"
 #include "sntp_task.h"
-
+uint8_t flag_uptime=0;
 
 static const char *TAG_SNTP = "SNTP_TASK";
 
 void time_sync_notification_cb(struct timeval *tv)
 {
     ESP_LOGI(TAG_SNTP, "Notification of a time synchronization event");
+    flag_uptime=1;
 }
 void initialize_sntp(void) {
 	ESP_LOGI(TAG_SNTP, "Initializing SNTP");
@@ -38,17 +39,24 @@ void obtain_time(void) {
 	time_t now = 0;
 	struct tm timeinfo = { 0 };
 	int retry = 0;
-	const int retry_count = 20;
+	const int retry_count = 5;
 	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET
 			&& ++retry < retry_count) {
 		ESP_LOGI(TAG_SNTP, "Waiting for system time to be set... (%d/%d)", retry,
 				retry_count);
-		vTaskDelay(NTP_APDATE*1000 / portTICK_PERIOD_MS);
+		vTaskDelay(NTP_UPDATE*1000 / portTICK_PERIOD_MS);
 	}
 	if (retry==retry_count)sntp_restart();
-	ESP_LOGD(TAG_SNTP, "Time OK)");
-	time(&now);
-	localtime_r(&now, &timeinfo);
+
+	if(flag_uptime==1)
+			{
+			ESP_LOGW(TAG_SNTP, "Time OK)");
+			log_log_save_mess(LOG_SETNTP);
+			flag_uptime=0;
+			time(&now);
+			localtime_r(&now, &timeinfo);
+			}
+
 
 
 }
@@ -62,7 +70,10 @@ void vTaskNTP(void *pvParameters) {
 	timeup=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*60*60+timeinfo.tm_yday*60*60*24+(timeinfo.tm_year-70)*60*60*8766;
 	for (;;) {
 		obtain_time();
+		for(uint16_t ct_ntp=0;ct_ntp<240;ct_ntp++)
+		{
 
-		vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+		}
 	}
 }

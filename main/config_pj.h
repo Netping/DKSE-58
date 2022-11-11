@@ -10,7 +10,7 @@
 
 //*****************************************Main config*************************************************
 #define Platform 58
-#define rev 2
+#define rev 3
 #define Assembly 0
 #define Bild 0
 
@@ -22,8 +22,8 @@
 #define DEF_DHCP 0
 //#define OUT_POW_EN 4
 #define size_1k_buff 24
-
-#define NTP_APDATE 20
+#define pin_def 35
+#define NTP_UPDATE 20
 
 //*****************************************1wire termo  port*******************************************
 #define MAIN_APP_OWB_H_ 1

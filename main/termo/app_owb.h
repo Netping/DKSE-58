@@ -6,6 +6,10 @@
  */
 #include "..\main\config_pj.h"
 
+#define term_ver 1
+#define term_rev 1
+
+
 #if MAIN_APP_OWB_H_ == 1
 
 #include "C:\Espressif\frameworks\esp-idf-v4.4.2\components\esp_http_server\include\esp_http_server.h"

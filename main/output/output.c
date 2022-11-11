@@ -556,7 +556,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 	switch (output_reply->type_event) {
 
 	case OUT_START:
-		sprintf(out_small, "Старт модуля выходов\n\r");
+		sprintf(out_small, "Старт модуля выходов v%d.%d\n\r",out_ver,out_rev);
 		break;
 
 	case OUT_CLRE:
@@ -853,7 +853,7 @@ esp_err_t load_data_output(void) {
 						&OUT_PORT[ct_s].delay);
 
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash1-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash1-%d", name,
 					err, ct_s);
 		}
 
@@ -864,7 +864,7 @@ esp_err_t load_data_output(void) {
 						&OUT_PORT[ct_s].polar_pulse);
 
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash2-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash2-%d", name,
 					err, ct_s);
 		}
 
@@ -874,20 +874,20 @@ esp_err_t load_data_output(void) {
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].type_logic);
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash3-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash3-%d", name,
 					err, ct_s);
 		}
 		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
 		sprintf(name, "gpio_name_%d", ct_s);
-		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
-							err, ct_s);
+//		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+//							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].name), &lens);
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash4-%d", name,
 					err, ct_s);
 		}
 
@@ -895,13 +895,13 @@ esp_err_t load_data_output(void) {
 
 		memset((uint8_t*) name, 0, 64);
 		sprintf(name, "gpio_s_name_%d", ct_s);
-		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash5-%d", name,
-							err, ct_s);
+//		ESP_LOGE("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+//							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].set_name), &lens);
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash5-%d", name,
 					err, ct_s);
 		}
 		lens = 32;
@@ -912,7 +912,7 @@ esp_err_t load_data_output(void) {
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].clr_name), &lens);
 		if (err != ERR_OK) {
-			ESP_LOGW("OUT_READ", "Error %s=%x read data to flash6-%d", name,
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash6-%d", name,
 					err, ct_s);
 		}
 	}

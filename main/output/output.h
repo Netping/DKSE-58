@@ -6,6 +6,11 @@
  */
 #include "../main/config_pj.h"
 #include "C:\Espressif\frameworks\esp-idf-v4.4.2\components\esp_http_server\include\esp_http_server.h"
+
+#define out_ver 1
+#define out_rev 2
+
+
 #ifndef MAIN_OUTPUT_OUTPUT_H_
 #define MAIN_OUTPUT_OUTPUT_H_
 #if MAIN_APP_OUT_PORT == 1

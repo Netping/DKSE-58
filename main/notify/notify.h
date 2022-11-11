@@ -5,6 +5,8 @@
  *  Created on: 19 θών. 2022 γ.
  *      Author: ivanov
  */
+#define not_ver 1
+#define not_rev 2
 
 #if MAIN_APP_NOTIF == 1
 

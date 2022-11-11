@@ -351,12 +351,12 @@ esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 
 	for (ct_s = 0; ct_s < in_port_n - 1; ct_s++) {
 
-		sprintf(buf_temp, "{value:\"%d\",text:\"input%d\"},", ct_s, ct_s);
+		sprintf(buf_temp, "{value:\"%d\",text:\"Вход%d\"},", ct_s, ct_s);
 		strcat(buf, buf_temp);
 
 	}
 
-	sprintf(buf_temp, "{value:\"%d\",text:\"input%d\"}", in_port_n - 1,
+	sprintf(buf_temp, "{value:\"%d\",text:\"Вход%d\"}", in_port_n - 1,
 	in_port_n - 1);
 	strcat(buf, buf_temp);
 	start_ct = in_port_n;
@@ -367,11 +367,11 @@ esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	for (ct_s = 0; ct_s < out_port_n - 1; ct_s++) {
 
-		sprintf(buf_temp, "{value:\"%d\",text:\"output%d\"},", ct_s + start_ct,
+		sprintf(buf_temp, "{value:\"%d\",text:\"Выход%d\"},", ct_s + start_ct,
 				ct_s);
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{value:\"%d\",text:\"output%d\"}",
+	sprintf(buf_temp, "{value:\"%d\",text:\"Выход%d\"}",
 	out_port_n + start_ct - 1,
 	out_port_n - 1);
 	strcat(buf, buf_temp);
@@ -390,11 +390,11 @@ esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	for (ct_s = 0; ct_s < sensor_cont - 1; ct_s++) {
 
-		sprintf(buf_temp, "{value:\"%d\",text:\"Termometr%d\"},",
+		sprintf(buf_temp, "{value:\"%d\",text:\"Термодатчик%d\"},",
 				ct_s + start_ct, ct_s);
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{value:\"%d\",text:\"Termometr%d\"}",
+	sprintf(buf_temp, "{value:\"%d\",text:\"Термодатчик%d\"}",
 	out_port_n + start_ct - 1,
 	out_port_n - 1);
 	strcat(buf, buf_temp);
@@ -679,7 +679,7 @@ void log_swich_notf(char *out, log_reple_t *input_reply) {
 	switch (input_reply->type_event) {
 
 	case NOTF_START:
-		sprintf(out_small, "Старт модуля уведомления\n\r");
+		sprintf(out_small, "Старт модуля уведомления v%d.%d\n\r",not_ver,not_rev);
 		break;
 	case NOTF_SETE:
 		sprintf(out_small, "Активировано уведомление: %s \n\r",

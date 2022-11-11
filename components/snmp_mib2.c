@@ -39,7 +39,7 @@
  */
 
 #include "lwip/apps/snmp_opts.h"
-
+#include "../components/lwipopts.h"
 #if LWIP_SNMP && SNMP_LWIP_MIB2 /* don't build if not configured for use in lwipopts.h */
 
 #if !LWIP_STATS

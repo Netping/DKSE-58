@@ -121,7 +121,7 @@ esp_err_t np_http_update_set(httpd_req_t *req)
      		ESP_LOGI(TAG, "Commanding reboot into %s", new_part->label);
      		httpd_resp_send(req, "", 0);
      		vTaskDelay(3 * configTICK_RATE_HZ);
-
+     		log_update_save_mess(UPD_GOOD);
      		esp_restart();
      	}
     }
@@ -192,8 +192,8 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
 //	reple_to_save.dicr = 1;
 
 
-	 vTaskDelay(3000 / portTICK_PERIOD_MS);
-
+	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	log_log_save_mess(LOG_RESTART);
     esp_restart();
 //    char buf[128];
 //    sprintf(buf,

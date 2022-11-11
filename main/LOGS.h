@@ -1,7 +1,13 @@
 #include <stdint.h>
 //#include "flash_if.h"
 #include "nvs_task.h"
-#define max_log_mess 50
+
+
+#define log_ver 1
+#define log_rev 2
+
+
+#define max_log_mess 100
 void save_reple_log (log_reple_t reple2);
 uint8_t logs_read (uint16_t n_mess,char* mess);
 void GET_reple (log_reple_t* reple);
@@ -26,15 +32,20 @@ enum update_event_t {
 enum sett_event_t {
   SETT_START,
   SETT_EDIT,
+  SETT_EDITIP,
   SETT_NDHCP,
   SETT_EDHCP,
   SETT_DNS,
   SETT_ERR,
+  SETT_TIME,
+  SETT_ETIME,
   SETT_DNS_GETE
 };
 enum log_event_t {
   LOG_START,
-  LOG_ERR,
+  LOG_RESTART,
+  LOG_SETNTP,
+  LOGS_ERR,
   SLOG_ERR
 };
 

@@ -28,4 +28,8 @@ extern esp_app_desc_t app_desc;
 extern const httpd_uri_t np_html_uri[];
 #define NP_HTML_HEADERS_NUMBER    14
 
+#define upd_ver 1
+#define upd_rev 2
+
+
 #endif /* COMPONENTS_UPDATE_H_ */

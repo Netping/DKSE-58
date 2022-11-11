@@ -38,10 +38,6 @@ esp_err_t save_data_blok(void) {
 	err = err | save_data_notify();
 #endif
 
-
-
-
-
 	err = nvs_set_blob(nvs_data_handle, get_name(V_IP_CONFIG),
 			FW_data.net.V_IP_CONFIG, 4);
 
@@ -257,19 +253,19 @@ esp_err_t save_data_blok(void) {
 					FW_data.net.V_IP_SYSL, 4);
 
 	err = err
-				| nvs_set_blob(nvs_data_handle, get_name(V_IP_SYSL1),
-						FW_data.net.V_IP_SYSL1, 4);
+			| nvs_set_blob(nvs_data_handle, get_name(V_IP_SYSL1),
+					FW_data.net.V_IP_SYSL1, 4);
 
 	err = err
-				| nvs_set_blob(nvs_data_handle, get_name(V_IP_SYSL2),
-						FW_data.net.V_IP_SYSL2, 4);
+			| nvs_set_blob(nvs_data_handle, get_name(V_IP_SYSL2),
+					FW_data.net.V_IP_SYSL2, 4);
 
 	err = err
 			| nvs_set_blob(nvs_data_handle, get_name(V_IP_SNMP),
 					FW_data.snmp.V_IP_SNMP, 32);
 	err = err
-				| nvs_set_blob(nvs_data_handle, get_name(V_IP_SNMP_S),
-						FW_data.snmp.V_IP_SNMP_S, 32);
+			| nvs_set_blob(nvs_data_handle, get_name(V_IP_SNMP_S),
+					FW_data.snmp.V_IP_SNMP_S, 32);
 
 	err = err
 			| nvs_set_u8(nvs_data_handle, get_name(V_TYPE_OUT),
@@ -522,14 +518,11 @@ esp_err_t save_data_blok(void) {
 			| nvs_set_u8(nvs_data_handle, get_name(V_RELOG_E2),
 					FW_data.wdt[1].V_RELOG_E);
 	err = err
-				| nvs_set_u8(nvs_data_handle, get_name(V_ECO_EN),
-						FW_data.sys.V_ECO_EN);
-
+			| nvs_set_u8(nvs_data_handle, get_name(V_ECO_EN),
+					FW_data.sys.V_ECO_EN);
 
 	err = err
-				| nvs_set_u8(nvs_data_handle, get_name(SAMMER),
-						FW_data.net.SAMMER);
-
+			| nvs_set_u8(nvs_data_handle, get_name(SAMMER), FW_data.net.SAMMER);
 
 	err = err
 			| nvs_set_blob(nvs_data_handle, get_name(N_NTP1),
@@ -551,7 +544,7 @@ esp_err_t save_data_blok(void) {
 //	reple_to_save.event_cfg.canal = 0;
 //	reple_to_save.event_cfg.source = SYS;
 //	reple_to_save.dicr = 1;
-
+	load_data_blok();
 	return err;
 }
 esp_err_t load_data_blok(void) {
@@ -571,7 +564,6 @@ esp_err_t load_data_blok(void) {
 #if MAIN_APP_NOTIF == 1
 	err = err | load_data_notify();
 #endif
-
 
 	err = nvs_get_u8(nvs_data_handle, get_name(LOAD_DEF_FLAG),
 			&FW_data.sys.LOAD_DEF_FLAG);
@@ -801,18 +793,18 @@ esp_err_t load_data_blok(void) {
 			| nvs_get_blob(nvs_data_handle, get_name(V_IP_SYSL),
 					FW_data.net.V_IP_SYSL, &lens);
 	err = err
-				| nvs_get_blob(nvs_data_handle, get_name(V_IP_SYSL1),
-						FW_data.net.V_IP_SYSL1, &lens);
+			| nvs_get_blob(nvs_data_handle, get_name(V_IP_SYSL1),
+					FW_data.net.V_IP_SYSL1, &lens);
 	err = err
-				| nvs_get_blob(nvs_data_handle, get_name(V_IP_SYSL2),
-						FW_data.net.V_IP_SYSL2, &lens);
+			| nvs_get_blob(nvs_data_handle, get_name(V_IP_SYSL2),
+					FW_data.net.V_IP_SYSL2, &lens);
 	lens = 32;
 	err = err
 			| nvs_get_blob(nvs_data_handle, get_name(V_IP_SNMP),
 					FW_data.snmp.V_IP_SNMP, &lens);
 	err = err
-				| nvs_get_blob(nvs_data_handle, get_name(V_IP_SNMP_S),
-						FW_data.snmp.V_IP_SNMP_S, &lens);
+			| nvs_get_blob(nvs_data_handle, get_name(V_IP_SNMP_S),
+					FW_data.snmp.V_IP_SNMP_S, &lens);
 	lens = 4;
 	err = err
 			| nvs_get_u8(nvs_data_handle, get_name(V_TYPE_OUT),
@@ -1064,15 +1056,12 @@ esp_err_t load_data_blok(void) {
 					&FW_data.wdt[1].V_RELOG_E);
 
 	err = err
-				| nvs_get_u8(nvs_data_handle, get_name(SAMMER),
-						&FW_data.net.SAMMER);
+			| nvs_get_u8(nvs_data_handle, get_name(SAMMER),
+					&FW_data.net.SAMMER);
 
 	err = err
-					| nvs_get_u8(nvs_data_handle, get_name(V_ECO_EN),
-							&FW_data.sys.V_ECO_EN);
-
-
-
+			| nvs_get_u8(nvs_data_handle, get_name(V_ECO_EN),
+					&FW_data.sys.V_ECO_EN);
 
 	lens = 32;
 
@@ -1127,7 +1116,7 @@ uint8_t load_def_data(void) {
 	FW_data.net.V_IP_GET[1] = 168;
 	FW_data.net.V_IP_GET[2] = 0;
 	FW_data.net.V_IP_GET[3] = 1;
-	FW_data.net.SAMMER=0;
+	FW_data.net.SAMMER = 0;
 	FW_data.net.V_DHCP = DEF_DHCP;
 	FW_data.net.V_IP_DNS[0] = 192;
 	FW_data.net.V_IP_DNS[1] = 168;
@@ -1231,14 +1220,16 @@ uint8_t load_def_data(void) {
 	FW_data.sys.V_ID_MAC[7] = 0xDC;
 	memset((uint8_t*) &FW_data.sys.V_Name_dev, 0, 85);
 	memset((uint8_t*) &FW_data.sys.V_CALL_DATA, 0, 85);
-	memcpy((uint8_t*) &FW_data.sys.V_Name_dev, (uint8_t*) "netping58", 10);
-	memcpy((uint8_t*) &FW_data.sys.V_CALL_DATA, (uint8_t*) "netping.ru", 10);
+	memcpy((uint8_t*) &FW_data.sys.V_Name_dev, (uint8_t*) "NetPingIOV5", 11);
+	memcpy((uint8_t*) &FW_data.sys.V_CALL_DATA, (uint8_t*) "support@netping.ru",19);
 
 	memset((uint8_t*) &FW_data.net.N_NTP1, 0, 32);
-	memcpy((uint8_t*) &FW_data.net.N_NTP1, (uint8_t*) "ntp1.stratum2.ru", sizeof("ntp1.stratum2.ru"));
+	memcpy((uint8_t*) &FW_data.net.N_NTP1, (uint8_t*) "ntp3.ntp-servers.net",
+			sizeof("ntp3.ntp-servers.net"));
 
 	memset((uint8_t*) &FW_data.net.N_NTP2, 0, 32);
-	memcpy((uint8_t*) &FW_data.net.N_NTP2, (uint8_t*) "ntp2.stratum2.ru",sizeof("ntp2.stratum2.ru"));
+	memcpy((uint8_t*) &FW_data.net.N_NTP2, (uint8_t*) "ntp4.ntp-servers.net",
+			sizeof("ntp4.ntp-servers.net"));
 
 	memset((uint8_t*) &FW_data.net.N_SLOG, 0, 32);
 
@@ -1260,18 +1251,15 @@ uint8_t load_def_data(void) {
 	FW_data.net.V_IP_SYSL2[2] = 3;
 	FW_data.net.V_IP_SYSL2[3] = 3;
 
-
 	FW_data.snmp.V_IP_SNMP[0] = 192; //     62.117.76.142
 	FW_data.snmp.V_IP_SNMP[1] = 168;
 	FW_data.snmp.V_IP_SNMP[2] = 0;
 	FW_data.snmp.V_IP_SNMP[3] = 152;
 
-
 	FW_data.snmp.V_IP_SNMP_S[0] = 192; //     62.117.76.142
 	FW_data.snmp.V_IP_SNMP_S[1] = 168;
 	FW_data.snmp.V_IP_SNMP_S[2] = 0;
 	FW_data.snmp.V_IP_SNMP_S[3] = 151;
-
 
 	FW_data.sys.V_TYPE_OUT = 0;
 
@@ -1372,13 +1360,14 @@ uint8_t load_struct_flash_data(void) {
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	nvs_close(nvs_data_handle);
 
+
 #if MAIN_APP_DEFAULT_CONF == 0
-	if ((FW_data.sys.LOAD_DEF_FLAG == 0) || (err != ESP_OK)) {
+	if ((FW_data.sys.LOAD_DEF_FLAG == 0) || (err != ESP_OK)||(gpio_get_level(pin_def)==0)) {
 #endif
-	printf("Run load_def_data() - settings default load \n\r");
-	nvs_erase_all(nvs_data_handle);
-	load_def_data();
-	return 0;
+		ESP_LOGE("NVS=","Run load_def_data() - settings default load \n\r");
+		nvs_erase_all(nvs_data_handle);
+		load_def_data();
+		return 0;
 #if MAIN_APP_DEFAULT_CONF == 0
 	} else {
 
@@ -1396,137 +1385,29 @@ void nvs_task(void *pvParameters) {
 		err = nvs_flash_init_partition("nvs");
 	}
 	ESP_ERROR_CHECK(err);
-
+uint8_t ct_delay_res=0;
 	while (1) {
 
 		if (reple_to_save.dicr != 0) {
 			GET_reple(&reple_to_save);
-//			if ((reple_to_save.event_cfg.source == WEB)
-//					|| (reple_to_save.event_cfg.source == IO)) {
-////				if ((reple_to_save.type_event == OUT_TOL)
-////						|| (reple_to_save.type_event == OUT_SET)) {
-////					reple_to_save.event_cfg.log =
-////							FW_data.gpio.RISE_L[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.syslog =
-////							FW_data.gpio.RISE_SL[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.smtp =
-////							FW_data.gpio.RISE_E[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.snmp =
-////							FW_data.gpio.RISE_SN[reple_to_save.event_cfg.canal];
-////				}
-////				if (reple_to_save.type_event == OUT_RES) {
-////					reple_to_save.event_cfg.log =
-////							FW_data.gpio.FALL_L[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.syslog =
-////							FW_data.gpio.FALL_SL[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.smtp =
-////							FW_data.gpio.FALL_E[reple_to_save.event_cfg.canal];
-////					reple_to_save.event_cfg.snmp =
-////							FW_data.gpio.FALL_SN[reple_to_save.event_cfg.canal];
-////				}
-//
-//			}
-//			if (reple_to_save.event_cfg.source == WDT) {
-//				if (reple_to_save.type_event == WDT_RES) {
-//					reple_to_save.event_cfg.log =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_RESET_L;
-//					reple_to_save.event_cfg.syslog =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_RESET_SL;
-//					reple_to_save.event_cfg.smtp =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_RESET_E;
-//					reple_to_save.event_cfg.snmp =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_RESET_T;
-//				}
-//				if (reple_to_save.type_event == WDT_STOP) {
-//					reple_to_save.event_cfg.log =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_EVENT_L;
-//					reple_to_save.event_cfg.syslog =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_EVENT_SL;
-//					reple_to_save.event_cfg.smtp =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_EVENT_E;
-//					reple_to_save.event_cfg.snmp =
-//							FW_data.wdt[reple_to_save.event_cfg.canal].V_EVENT_T;
-//				}
-//
-//			}
-//
-////			if (reple_to_save.event_cfg.source == TERMO) {
-////				if (reple_to_save.type_event == TEMP_OVER) {
-////					reple_to_save.event_cfg.log =
-////							termo[reple_to_save.event_cfg.canal].TEMP_UP_L;
-////					reple_to_save.event_cfg.syslog =
-////							termo[reple_to_save.event_cfg.canal].TEMP_UP_SL;
-////					reple_to_save.event_cfg.smtp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_UP_E;
-////					reple_to_save.event_cfg.snmp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_UP_SN;
-////				}
-////				if (reple_to_save.type_event == TEMP_NORM) {
-////					reple_to_save.event_cfg.log =
-////							termo[reple_to_save.event_cfg.canal].TEMP_OK_L;
-////					reple_to_save.event_cfg.syslog =
-////							termo[reple_to_save.event_cfg.canal].TEMP_OK_SL;
-////					reple_to_save.event_cfg.smtp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_OK_E;
-////					reple_to_save.event_cfg.snmp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_OK_SN;
-////				}
-////				if (reple_to_save.type_event == TEMP_LOW) {
-////					reple_to_save.event_cfg.log =
-////							termo[reple_to_save.event_cfg.canal].TEMP_DW_L;
-////					reple_to_save.event_cfg.syslog =
-////							termo[reple_to_save.event_cfg.canal].TEMP_DW_SL;
-////					reple_to_save.event_cfg.smtp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_DW_E;
-////					reple_to_save.event_cfg.snmp =
-////							termo[reple_to_save.event_cfg.canal].TEMP_DW_SN;
-////				}
-////
-////			}
-//			if (reple_to_save.event_cfg.source == SNMP) {
-//				reple_to_save.event_cfg.log = 1;
-//				reple_to_save.event_cfg.syslog = 1;
-//				reple_to_save.event_cfg.smtp = 1;
-//				reple_to_save.event_cfg.snmp = 1;
-//			}
-//
-//			if (reple_to_save.event_cfg.source == SYS) {
-//				reple_to_save.event_cfg.log = 1;
-//				reple_to_save.event_cfg.syslog = 1;
-//				reple_to_save.event_cfg.smtp = 0;
-//				reple_to_save.event_cfg.snmp = 0;
-//			}
-//
-//			if (reple_to_save.event_cfg.log == 1) {
-//				save_reple_log(reple_to_save);
-//			}
-//			if (reple_to_save.event_cfg.syslog == 1) {
-//				form_reple_to_save(reple_to_save.event_cfg);
-//			}
-//			if (reple_to_save.event_cfg.smtp == 1) {
-//
-//				reple_to_email.type_event = reple_to_save.type_event;
-//				reple_to_email.event_cfg.canal = reple_to_save.event_cfg.canal;
-//				reple_to_email.dicr = 1;
-//			}
-//
-//			if (reple_to_save.event_cfg.snmp == 1) {
-//				char snmp_mess[128];
-//				swich_mess_event(&reple_to_save, snmp_mess);
-//				if (reple_to_save.event_cfg.source != TERMO) {
-//					send_mess_trap(reple_to_save.event_cfg.OID_out, snmp_mess,
-//							strlen(snmp_mess), reple_to_save.event_cfg.canal);
-//				} else {
-//					send_mess_trap_termo(reple_to_save.event_cfg.OID_out,
-//							reple_to_save.event_cfg.canal);
-//				}
-
-//			}
-
 		}
 		if (nvs_flags.data_param != 0) {
 			save_data_blok();
+
 			nvs_flags.data_param = 0;
+		}
+		if (nvs_flags.data_reload == 1) {
+			if (ct_delay_res>50)
+			{
+			ct_delay_res=0;
+			esp_restart();
+			nvs_flags.data_reload = 0;
+			}
+			else
+			{
+			 ct_delay_res++;
+			}
+			vTaskDelay(100 / portTICK_PERIOD_MS);
 		}
 		vTaskDelay(50 / portTICK_PERIOD_MS);
 	}

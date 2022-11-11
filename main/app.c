@@ -97,7 +97,7 @@ void sett_task(void *pvParameters) {
 	char syslog_server[32] = "ya.ru";
 	xSemaphoreGive(flag_global_save_log);
 
-	log_sett_save_mess(0);
+
 
 if (FW_data.net.V_IP_SYSL[3]!=0)
 {

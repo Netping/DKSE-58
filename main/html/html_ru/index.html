@@ -65,7 +65,7 @@ l+=field('MAC адрес',data.mac);
 l+=field('Модель устройсва',devname);
 l+=field('Версия ПО',fwver);
 l+=field('Версия железа','1.'+hwver);
-var s=Math.floor(uptime_100ms/10);
+var s=Math.floor(uptime_100ms);
 var m=Math.floor(s/60); s=s%60;
 var h=Math.floor(m/60); m=m%60;
 var d=Math.floor(h/24); h=h%24;

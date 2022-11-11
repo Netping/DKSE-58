@@ -120,6 +120,12 @@ void app_main(void) {
 	ESP_ERROR_CHECK(nvs_flash_init());
 	ESP_ERROR_CHECK(esp_netif_init());
 	ESP_ERROR_CHECK(esp_event_loop_create_default());
+	gpio_set_direction(4, GPIO_MODE_OUTPUT);
+			gpio_set_level(4, 1);
+			gpio_set_direction(pin_def, GPIO_MODE_INPUT);
+			ESP_LOGE("NVS=","pin_def=%d\n\r",gpio_get_level(pin_def));
+
+
 	load_struct_flash_data();
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	ESP_LOGI(TAG_boot, "Current running partition: %s", running->label);
@@ -131,6 +137,8 @@ void app_main(void) {
 				app_desc.time);
 	}
 	static httpd_handle_t server = NULL;
+
+
 
 	ESP_ERROR_CHECK(example_connect());
 	if (((FW_data.net.V_DHCP == 1)||(DEF_DHCP!=0)
@@ -186,8 +194,7 @@ void app_main(void) {
 	ret = tcpip_adapter_get_netif(TCPIP_ADAPTER_IF_ETH,
 				(void**) &_netif);
 
-	gpio_set_direction(4, GPIO_MODE_OUTPUT);
-	gpio_set_level(4, 1);
+
 
 	ESP_LOGI("MAC=", "%02x.%02x.%02x.%02x.%02x.%02x", _netif->hwaddr[0],
 			_netif->hwaddr[1], _netif->hwaddr[2], _netif->hwaddr[3],

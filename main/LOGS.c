@@ -9,6 +9,8 @@
 #include "syslog.h"
 #include "../main/input/input.h"
 #include "../main/output/output.h"
+#include "http_var.h"
+#include "update.h"
 //#include "flash_if.h"
 //#include "syslog.h"
 log_reple_t reple_to_save;
@@ -76,7 +78,7 @@ uint8_t logs_read(uint16_t n_mess, char *mess) {
 	uint8_t logs_data[13] = { 0 };
 	uint8_t good_fl = 0;
 	log_reple_t reply_read;
-	uint16_t size = 12;
+	size_t size = 12;
 	memset(mess, 0, 256);
 	sprintf(name_str, "mess%d", n_mess);
 	esp_err_t err = nvs_open_from_partition("nvs", "storage", NVS_READWRITE,
@@ -122,12 +124,17 @@ void log_swich_sett(char *out, log_reple_t *input_reply) {
 	strcat(out, out_small);
 	switch (input_reply->type_event) {
 	case SETT_START:
-		sprintf(out_small, "Старт модуля настройки\n\r");
+		sprintf(out_small, "Старт модуля настройки v%d.%d\n\r",(uint8_t)http_ver,http_rev);
 		break;
+
 	case SETT_EDIT:
-		sprintf(out_small, "Изменение конфигурации сетевых настроек\n\r");
+		sprintf(out_small, "Изменение конфигурации основных настроек\n\r");
 
 		break;
+	case SETT_EDITIP:
+			sprintf(out_small, "Изменение конфигурации сетевых настроек\n\r");
+
+			break;
 	case SETT_NDHCP:
 		sprintf(out_small,
 				"Получение новой сетевой конфигурации от DHCP сервера\n\r");
@@ -172,7 +179,7 @@ void log_swich_update(char *out, log_reple_t *input_reply) {
 	strcat(out, out_small);
 	switch (input_reply->type_event) {
 	case UPD_START:
-		sprintf(out_small, "Старт модуля обновления\n\r");
+		sprintf(out_small, "Старт модуля обновления v%d.%d\n\r",upd_ver,upd_rev);
 		break;
 	case UPD_GOOD:
 		sprintf(out_small, "Процедура обновления ПО прошла успешно\n\r");
@@ -204,12 +211,17 @@ void log_swich_log(char *out, log_reple_t *input_reply) {
 	strcat(out, out_small);
 	switch (input_reply->type_event) {
 	case LOG_START:
-		sprintf(out_small, "Старт модуля журнала\n\r");
+		sprintf(out_small, "Старт устройства v%d.%d\n\r",log_ver,log_rev);
 		break;
-	case LOG_ERR:
+	case LOG_RESTART:
+				sprintf(out_small, "Выполнена перезагрузка устройства\n\r");
+				break;
+	case LOGS_ERR:
 		sprintf(out_small,	"Ошибка в модуле журнала\n\r");
-
 			break;
+	case LOG_SETNTP:
+				sprintf(out_small,	"Установка времени по NTP серверу\n\r");
+					break;
 	case SLOG_ERR:
 			sprintf(out_small,	"Ошибка отправки по одному из адресов syslog\n\r");
 
@@ -364,7 +376,7 @@ void save_reple_log(log_reple_t reple2) {
 
 	err = err
 			| nvs_set_blob(nvs_data_handle, name_str, (uint8_t*) &(reple2),
-					sizeof(reple2));
+					(size_t*)sizeof(reple2));
 
 	err = nvs_set_u16(nvs_data_handle, "number_mess", number_mess);
 	printf("save %d log mess committing updates in NVS ... ", number_mess);
