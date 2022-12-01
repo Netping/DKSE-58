@@ -352,7 +352,7 @@ void save_reple_log(log_reple_t reple2) {
 			swich_mess(mess, &reple2);
 		}
 	}
-	syslog_printf(mess);
+	syslog_printf((const char *)mess);
 
 	esp_err_t err = nvs_open_from_partition("nvs", "storage", NVS_READWRITE,
 			&nvs_data_handle);
@@ -362,6 +362,7 @@ void save_reple_log(log_reple_t reple2) {
 		err = ESP_OK;
 		number_mess = 0;
 	}
+
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 
 	if ((err == ESP_OK) && (number_mess < max_log_mess))

@@ -10,7 +10,7 @@
 #define MAIN_INPUT_INPUT_H_
 
 #define in_ver 1
-#define in_rev 2
+#define in_rev 3
 
 #if MAIN_APP_IN_PORT == 1
 typedef struct

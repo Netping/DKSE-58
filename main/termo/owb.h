@@ -149,7 +149,7 @@ struct owb_driver
 
 typedef struct
 {
-	char name[16];
+	char name_dt[16];
 	uint8_t id[8];
 	int16_t temper;
 	float ftemper;
@@ -189,6 +189,11 @@ typedef struct
 
 }FW_termo_t;
 
+
+typedef struct
+{
+	char name_dt[16];
+}FW_termo_n;
 
 
 /// @cond ignore

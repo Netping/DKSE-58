@@ -6,7 +6,7 @@
  *      Author: ivanov
  */
 #define not_ver 1
-#define not_rev 2
+#define not_rev 3
 
 #if MAIN_APP_NOTIF == 1
 

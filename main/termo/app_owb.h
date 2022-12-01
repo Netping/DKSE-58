@@ -7,7 +7,7 @@
 #include "..\main\config_pj.h"
 
 #define term_ver 1
-#define term_rev 1
+#define term_rev 2
 
 
 #if MAIN_APP_OWB_H_ == 1
@@ -43,6 +43,7 @@ extern const httpd_uri_t termo_get_api;
 extern const httpd_uri_t termo_data_api;
 extern const httpd_uri_t np_html_uri_termo;
 extern FW_termo_t termo[MAX_DEVICES];
+extern FW_termo_n trm[MAX_DEVICES];
 extern int num_devices;
 esp_err_t termo_data_cgi_api_handler(httpd_req_t *req);
 esp_err_t termo_get_cgi_api_handler(httpd_req_t *req);

@@ -10,7 +10,7 @@
 
 //*****************************************Main config*************************************************
 #define Platform 58
-#define rev 3
+#define rev 4
 #define Assembly 0
 #define Bild 0
 
@@ -29,7 +29,7 @@
 #define MAIN_APP_OWB_H_ 1
 
 #if  MAIN_APP_OWB_H_ == 1
-#define max_sensor 16
+#define max_sensor 1
 #include "..\main\termo\app_owb.h"
 
 //#define OW_DEBUG 0

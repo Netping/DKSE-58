@@ -8,7 +8,7 @@
 #include "C:\Espressif\frameworks\esp-idf-v4.4.2\components\esp_http_server\include\esp_http_server.h"
 
 #define out_ver 1
-#define out_rev 2
+#define out_rev 3
 
 
 #ifndef MAIN_OUTPUT_OUTPUT_H_

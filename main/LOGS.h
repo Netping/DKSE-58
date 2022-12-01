@@ -4,7 +4,7 @@
 
 
 #define log_ver 1
-#define log_rev 2
+#define log_rev 3
 
 
 #define max_log_mess 100

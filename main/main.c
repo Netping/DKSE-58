@@ -123,7 +123,7 @@ void app_main(void) {
 	gpio_set_direction(4, GPIO_MODE_OUTPUT);
 			gpio_set_level(4, 1);
 			gpio_set_direction(pin_def, GPIO_MODE_INPUT);
-			ESP_LOGE("NVS=","pin_def=%d\n\r",gpio_get_level(pin_def));
+//			ESP_LOGE("NVS=","pin_def=%d\n\r",gpio_get_level(pin_def));
 
 
 	load_struct_flash_data();

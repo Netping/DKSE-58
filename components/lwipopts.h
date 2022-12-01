@@ -47,6 +47,8 @@
 
 /* Enable all Espressif-only options */
 
+
+#define LWIP_NETCONN                    1
 /*
    -----------------------------------------------
    ---------- Platform specific locking ----------

@@ -247,14 +247,15 @@ static esp_err_t in_web1_handler(httpd_req_t *req) {
 		printf("\n\rGood web hook\n\r");
 		memset((uint8_t*) buf_temp, 0, 256);
 		uint8_t fault=1;
-		for (ct_s = 0; ct_s < in_port_n; ct_s++) {
+		for (ct_s = 1; ct_s < in_port_n+1; ct_s++) {
 
 			sprintf(buf_temp, "%d", ct_s);
-
+//			if(((req->uri[strlen(req->uri) - 1])>0x30)||(((req->uri[strlen(req->uri) - 1])==0x30)&&((req->uri[strlen(req->uri) - 2])>0x30)))
+//			{
 			if ((ct_s == (req->uri[strlen(req->uri) - 1] - 0x30))
 					&& ((strlen(req->uri) - 10) == 1)) {
 				sprintf(buf, "in_result('ok', -1, %d, %d)",
-						IN_PORT[ct_s].sost_filtr, IN_PORT[ct_s].count);
+						IN_PORT[ct_s-1].sost_filtr, IN_PORT[ct_s-1].count);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault=0;
 			}
@@ -263,10 +264,11 @@ static esp_err_t in_web1_handler(httpd_req_t *req) {
 					&& ((buf_temp[1]-0x30) == (req->uri[strlen(req->uri) - 1]) - 0x30)
 					&& ((strlen(req->uri) - 10) == 2)) {
 				sprintf(buf, "in_result('ok', -1, %d, %d)",
-						IN_PORT[ct_s].sost_filtr, IN_PORT[ct_s].count);
+						IN_PORT[ct_s-1].sost_filtr, IN_PORT[ct_s-1].count);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault=0;
 			}
+	//	}
 		}
 		if (fault==1)
 			{
@@ -305,19 +307,30 @@ static esp_err_t in_web2_handler(httpd_req_t *req) {
 		 {
 
 
-		uint16_t data=0;
-		for (ct_s = in_port_n; ct_s>=1; ct_s--) {
-		data=data<<1;
-		if (IN_PORT[ct_s-1].sost_filtr!=0)
+		char data[in_port_n]={0};
+		memset((char*) data, 0, in_port_n);
+		for (ct_s = 0; ct_s<in_port_n; ct_s++)
+		{
+		//data=data<<1;
+		if (IN_PORT[ct_s].sost_filtr==0)
 			{
-			 data=data|0x0001;
+
+			 data[ct_s]='0';
 			}
-		printf("\n\rGood data=%d\n\r",data);
+		else
+			{
+			 data[ct_s]='1';
+			}
+
 		}
+		printf("\n\rGood data=%s\n\r",data);
+
+		memset((uint8_t*) buf, 0, 2048);
+		sprintf(buf, "in_result('ok', %s)",data);
 
 
 
-		sprintf(buf, "in_result('ok', %d)",data);
+
     	}
 	else {
 		printf("\n\rFall  web hook\n\r");

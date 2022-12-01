@@ -900,27 +900,27 @@ void notify_app(void *pvParameters) {
 					} else {
 						dns_gethostbyname(NOTF[nf_ct].send_to, &ip_trap,
 								trap_dns_found, &err);
-						printf("IPN=%x\n\r", ip_trap.u_addr.ip4.addr);
+						printf("IPN=%x\n\r", ip_trap.addr);
 					}
 
 					if (err != ERR_OK) {
 
-						IP4_ADDR(&ip_trap.u_addr.ip4, ipt[0], ipt[1], ipt[2],
+						IP4_ADDR(&ip_trap, ipt[0], ipt[1], ipt[2],
 								ipt[3]);
 //						ip_syslog1.type = 4;
 //						ip_syslog1.u_addr.ip4.addr = ip4_syslog.addr;
-						printf("IPN=%x\n\r", ip_trap.u_addr.ip4.addr);
+						printf("IPN=%x\n\r", ip_trap.addr);
 						err = 0;
 					}
 
 					if (NOTF[nf_ct].signal_n < in_port_n) {
 						printf("in_send_mess_trap=%d\n\r", event_nf);
-						in_send_mess_trap(&(ip_trap.u_addr.ip4.addr),
+						in_send_mess_trap(&(ip_trap.addr),
 								NOTF[nf_ct].signal_n);
 					} else if (NOTF[nf_ct].signal_n
 							< (in_port_n + out_port_n)) {
 						printf("out_send_mess_trap=%d\n\r", event_nf);
-						out_send_mess_trap(&(ip_trap.u_addr.ip4.addr),
+						out_send_mess_trap(&(ip_trap.addr),
 								(NOTF[nf_ct].signal_n - in_port_n));
 					}
 

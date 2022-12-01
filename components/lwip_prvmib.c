@@ -873,11 +873,13 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 //		} else {
 //			return 0;
 //		}
+
 	case 6: /* file name */
 		if (i < 2) {
 
-			MEMCPY(value, termo[i].name, strlen(termo[i].name));
-			return (s16_t) strlen(termo[i].name);
+			MEMCPY(value, trm[i].name_dt, strlen(trm[i].name_dt));
+			return (s16_t) strlen(trm[i].name_dt);
+
 		} else {
 			return 0;
 		}

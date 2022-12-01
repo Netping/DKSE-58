@@ -50,7 +50,7 @@
  *
  * $WIZ$ type = "boolean"
  */
-#define CONFIG_SYSLOG_SERIAL  1
+#define CONFIG_SYSLOG_SERIAL  0
 
 /**
  * Destination port of log messages.

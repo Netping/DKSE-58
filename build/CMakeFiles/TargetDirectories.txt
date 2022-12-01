@@ -8,7 +8,7 @@ D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/monitor.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/flash.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/encrypted-flash.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/_project_elf_src.dir
-D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/58_v3_app.elf.dir
+D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/58_v4_app.elf.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/size.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/size-files.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/CMakeFiles/size-components.dir
@@ -408,7 +408,6 @@ D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/app_trace/CMakeFiles/li
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/app_trace/CMakeFiles/install.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/app_trace/CMakeFiles/install/local.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/app_trace/CMakeFiles/install/strip.dir
-D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/asio/CMakeFiles/__idf_asio.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/asio/CMakeFiles/edit_cache.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/asio/CMakeFiles/rebuild_cache.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/asio/CMakeFiles/list_install_components.dir
@@ -442,7 +441,6 @@ D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/cmock/CMakeFiles/list_i
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/cmock/CMakeFiles/install.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/cmock/CMakeFiles/install/local.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/cmock/CMakeFiles/install/strip.dir
-D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/coap/CMakeFiles/__idf_coap.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/coap/CMakeFiles/edit_cache.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/coap/CMakeFiles/rebuild_cache.dir
 D:/ika/development/NETPING_PROJECT/DKSE-58/build/esp-idf/coap/CMakeFiles/list_install_components.dir

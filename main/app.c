@@ -97,9 +97,9 @@ void sett_task(void *pvParameters) {
 	char syslog_server[32] = "ya.ru";
 	xSemaphoreGive(flag_global_save_log);
 
+	vTaskDelay(5000 / portTICK_PERIOD_MS);
 
-
-if (FW_data.net.V_IP_SYSL[3]!=0)
+if (FW_data.net.V_IP_SYSL[3]==0)
 {
 	dns_gethostbyname(FW_data.net.N_SLOG, &ip_syslog, syslog_dns_found, &err);
 
@@ -114,11 +114,14 @@ if (err != ERR_OK) {
 	IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0],
 			FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
 			FW_data.net.V_IP_SYSL[3]);
-	ip_syslog.type = 4;
-	ip_syslog.u_addr.ip4.addr = ip4_syslog.addr;
+//	ip_syslog.type = 4;
+	ip_syslog.addr = ip4_syslog.addr;
+
 }
 
-
+ESP_LOGE("SYSLOG=","syslog0_ip=%d.%d.%d.%d  %x\n\r",FW_data.net.V_IP_SYSL[0],
+		FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
+		FW_data.net.V_IP_SYSL[3],ip_syslog.addr);
 
 
 
@@ -137,10 +140,13 @@ if (err != ERR_OK) {
 	IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL1[0],
 			FW_data.net.V_IP_SYSL1[1], FW_data.net.V_IP_SYSL1[2],
 			FW_data.net.V_IP_SYSL1[3]);
-	ip_syslog1.type = 4;
-	ip_syslog1.u_addr.ip4.addr = ip4_syslog.addr;
-}
+//	ip_syslog1.type = 4;
+	ip_syslog1.addr = ip4_syslog.addr;
 
+}
+ESP_LOGE("SYSLOG=","syslog1_ip=%d.%d.%d.%d\n\r",FW_data.net.V_IP_SYSL1[0],
+			FW_data.net.V_IP_SYSL1[1], FW_data.net.V_IP_SYSL1[2],
+			FW_data.net.V_IP_SYSL1[3]);
 
 
 if (FW_data.net.V_IP_SYSL2[3]!=0)
@@ -158,18 +164,23 @@ if (err != ERR_OK) {
 	IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL2[0],
 			FW_data.net.V_IP_SYSL2[1], FW_data.net.V_IP_SYSL2[2],
 			FW_data.net.V_IP_SYSL2[3]);
-	ip_syslog2.type = 4;
-	ip_syslog2.u_addr.ip4.addr = ip4_syslog.addr;
-}
+//	ip_syslog2.type = 4;
+	ip_syslog2.addr = ip4_syslog.addr;
 
+}
+ESP_LOGE("SYSLOG=","syslog2_ip=%d.%d.%d.%d\n\r",FW_data.net.V_IP_SYSL2[0],
+			FW_data.net.V_IP_SYSL2[1], FW_data.net.V_IP_SYSL2[2],
+			FW_data.net.V_IP_SYSL2[3]);
+//ESP_LOGE("SYSLOG=","pin_def=%d\n\r",gpio_get_level(pin_def));
 
 
 	syslog_init(ip_syslog,ip_syslog1,ip_syslog2);
 
 
-	xTaskCreate(&vTaskNTP, "vTaskNTP", 2048, NULL, 5, &xHandleNTP);
+	xTaskCreate(&vTaskNTP, "vTaskNTP", 4096, NULL, 5, &xHandleNTP);
 
 	xTaskCreate(&start_task, "start_task", 12048, NULL, 10, NULL);
+
 	log_sett_save_mess(SETT_START);
 	log_update_save_mess(UPD_START);
 	vTaskDelete(NULL);
@@ -202,7 +213,7 @@ void start_task(void *pvParameters) {
 	vTaskDelay(10 / portTICK_PERIOD_MS);
 #endif
 
-	xTaskCreate(&log_task, "log_task", 2024, NULL, 10, NULL);
+	xTaskCreate(&log_task, "log_task", 4096, NULL, 10, NULL);
 
 #if MAIN_APP_NOTIF == 1
 	xTaskCreate(&notify_app, "notify_app", 4096, NULL, 10, NULL);

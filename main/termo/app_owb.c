@@ -53,6 +53,7 @@
 #define get_name(x) #x
 #include "..\termo\owb.h"
 FW_termo_t termo[MAX_DEVICES];
+FW_termo_n trm[MAX_DEVICES];
 int num_devices;
 #if  MAIN_APP_OWB_H_ == 1
 #define DS18B20_RESOLUTION   (DS18B20_RESOLUTION_12_BIT)
@@ -370,33 +371,44 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	uint8_t sensor_cont;
 	if (num_devices != 0) {
-		sensor_cont = num_devices;
+		if (num_devices<=1)
+		{
+			sensor_cont = num_devices;
+		}
+		else
+		{
+			sensor_cont = 1;
+		}
 	} else {
-		sensor_cont = max_sensor;
+		sensor_cont = 0;
 
 	}
 
 	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
-		sprintf(buf_temp, "{name:\"%s\",", termo[ct].name);
+	//	printf( "out read t_name_%d=%s\n\r", ct,trm[ct].name_dt);
+	    sprintf(buf_temp, "{name:\"%s\",", trm[ct].name_dt);
+
+
 		strcat(buf, buf_temp);
-		printf("Name%d=%s\n\r", ct, termo[ct].name);
+//		printf("Name%d=%s\n\r", ct, termo[ct].name);
 		sprintf(buf_temp, "termo_id:\"%02x%02x%02x%02x%02x%02x%02x%02x\",",
 				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
 				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
 				termo[ct].id[6], termo[ct].id[7]);
 		strcat(buf, buf_temp);
-		printf("termo_id%d=%02x%02x%02x%02x%02x%02x%02x%02x\n\r", ct,
-				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
-				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
-				termo[ct].id[6], termo[ct].id[7]);
+//		printf("termo_id%d=%02x%02x%02x%02x%02x%02x%02x%02x\n\r", ct,
+//				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+//				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
+//				termo[ct].id[6], termo[ct].id[7]);
 
-		sprintf(buf_temp, "temp:%d}", (uint16_t) (10 * termo[ct].ftemper));
+		sprintf(buf_temp, "temp:%d}", (int) (10 * termo[ct].ftemper));
 		strcat(buf, buf_temp);
-		printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
+	//	printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
 		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{name:\"%s\",", termo[sensor_cont - 1].name);
+//	printf( "out read t_name_%d=%s\n\r", sensor_cont - 1,trm[sensor_cont - 1].name_dt);
+	sprintf(buf_temp, "{name:\"%s\",", trm[sensor_cont - 1].name_dt);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "termo_id:\"%02x%02x%02x%02x%02x%02x%02x%02x\",",
 			termo[sensor_cont - 1].id[0], termo[sensor_cont - 1].id[1],
@@ -409,9 +421,9 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 //					+ termo[sensor_cont - 1].ftemper));
 
 	sprintf(buf_temp, "temp:%d}",
-			(uint16_t) (10 * termo[sensor_cont - 1].ftemper));
+			(int) (10 * termo[sensor_cont - 1].ftemper));
 
-	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
+//	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
 
 	strcat(buf, buf_temp);
 
@@ -469,32 +481,44 @@ esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	uint8_t sensor_cont;
 	if (num_devices != 0) {
-		sensor_cont = num_devices;
-	} else {
-		sensor_cont = max_sensor;
+			if (num_devices<=1)
+			{
+				sensor_cont = num_devices;
+			}
+			else
+			{
+				sensor_cont = 1;
+			}
+		} else {
+			sensor_cont = 0;
 
-	}
+		}
+
 	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
-		sprintf(buf_temp, "{name:\"%s\",", termo[ct].name);
+	//	printf( "out read t_name_%d=%s\n\r", ct,trm[ct].name_dt);
+
+		sprintf(buf_temp, "{name:\"%s\",", trm[ct].name_dt);
+
 		strcat(buf, buf_temp);
-		printf("Name%d=%s\n\r", ct, termo[ct].name);
+//		printf("Name%d=%s\n\r", ct, termo[ct].name);
 		sprintf(buf_temp, "termo_id:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
 				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
 				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
 				termo[ct].id[6], termo[ct].id[7]);
 		strcat(buf, buf_temp);
-		printf("termo_id%d=%02x%02x %02x%02x %02x%02x %02x%02x\n\r", ct,
-				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
-				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
-				termo[ct].id[6], termo[ct].id[7]);
+//		printf("termo_id%d=%02x%02x %02x%02x %02x%02x %02x%02x\n\r", ct,
+//				termo[ct].id[0], termo[ct].id[1], termo[ct].id[2],
+//				termo[ct].id[3], termo[ct].id[4], termo[ct].id[5],
+//				termo[ct].id[6], termo[ct].id[7]);
 
-		sprintf(buf_temp, "temp:%d}", (uint16_t) (10 * termo[ct].ftemper));
+		sprintf(buf_temp, "temp:%d}",(int) (10 * termo[ct].ftemper));
 		strcat(buf, buf_temp);
-		printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
+//		printf("temp%d=%f\n\r", ct, termo[ct].ftemper);
 		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{name:\"%s\",", termo[sensor_cont - 1].name);
+//	printf( "out read t_name_%d=%s\n\r", sensor_cont - 1,trm[sensor_cont - 1].name_dt);
+	sprintf(buf_temp, "{name:\"%s\",", trm[sensor_cont - 1].name_dt);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "termo_id:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
 			termo[sensor_cont - 1].id[0], termo[sensor_cont - 1].id[1],
@@ -503,9 +527,9 @@ esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 			termo[sensor_cont - 1].id[6], termo[sensor_cont - 1].id[7]);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "temp:%d}",
-			(uint16_t) (10 * termo[sensor_cont - 1].ftemper));
+			(int) (10 * termo[sensor_cont - 1].ftemper));
 
-	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
+//	printf("temp%d=%f\n\r", sensor_cont - 1, termo[sensor_cont - 1].ftemper);
 	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "];");
@@ -565,18 +589,16 @@ static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 
 	}
 
-	printf("termo_set.cgi len =%d \n\rdata=\n\r", ret);
-	for (uint16_t ct_m = 5; (ct_m - 5) < MAX_DEVICES * 135 + 1; ct_m++) {
-		printf("%c", (char) buf[ct_m]);
-//		if (((ct_m-5)%4==0)&&((ct_m-5)!=0))
-//					{
-//				    	printf(" ");
-//					}
-		if (((ct_m - 5) % 135 == 0) && ((ct_m - 5) != 0)) {
-			printf("| %d  \n\r", ct_m - 5);
-		}
-	}
-	printf("\n\r\n\r");
+//	printf("termo_set.cgi len =%d \n\rdata=\n\r", ret);
+//	for (uint16_t ct_m = 5; (ct_m - 5) < MAX_DEVICES * 135 + 1; ct_m++) {
+//		printf("%c", (char) buf[ct_m]);
+//		if (((ct_m - 5) % 135 == 0) && ((ct_m - 5) != 0)) {
+//			printf("| %d  \n\r", ct_m - 5);
+//		}
+//	}
+
+
+
 	uint8_t sensor_cont;
 	if (num_devices != 0) {
 		sensor_cont = num_devices;
@@ -586,12 +608,12 @@ static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 	}
 	for (uint16_t ct = 0; ct < sensor_cont; ct++) {
 		len = read_mess_smtp((char*) (buf + 5 + ct * 136), (uint8_t*) buf_temp);
-		memset(termo[ct].name, 0, 16);
-		memcpy(termo[ct].name, (char*) (buf_temp), len);
+		memset(trm[ct].name_dt, 0, 16);
+		memcpy(trm[ct].name_dt, (char*) (buf_temp), len);
 		memset(buf_temp, 0, 1024);
-		printf("Name%d=%s\n\r", ct, termo[ct].name);
+		printf("Name%d=%s\n\r", ct, trm[ct].name_dt);
 
-		memset(buf_temp, 0, 1024);
+
 		char2_to_hex((char*) (buf + 5 + 68 + ct * 136), (uint8_t*) buf_temp,
 				32);
 		printf("id%d=%s\n\r", ct, buf_temp);
@@ -634,14 +656,14 @@ static esp_err_t thermo_web1_handler(httpd_req_t *req) {
 		printf("\n\rGood web hook\n\r");
 		memset((uint8_t*) buf_temp, 0, 256);
 		uint8_t fault = 1;
-		for (ct_s = 0; ct_s < max_sensor; ct_s++) {
+		for (ct_s = 1; ct_s < num_devices+1; ct_s++) {
 
 			sprintf(buf_temp, "%d", ct_s);
 
 			if ((ct_s == (req->uri[strlen(req->uri) - 1] - 0x30))
 					&& ((strlen(req->uri) - 13) == 1)) {
-				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s].temper,
-						termo[ct_s].status);
+				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s-1].temper,
+						termo[ct_s-1].status);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault = 0;
 			}
@@ -650,8 +672,8 @@ static esp_err_t thermo_web1_handler(httpd_req_t *req) {
 					&& ((buf_temp[1] - 0x30)
 							== (req->uri[strlen(req->uri) - 1]) - 0x30)
 					&& ((strlen(req->uri) - 13) == 2)) {
-				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s].temper,
-						termo[ct_s].status);
+				sprintf(buf, "thermo_result('ok', %d, %d)", termo[ct_s-1].temper,
+						termo[ct_s-1].status);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault = 0;
 			}
@@ -686,20 +708,32 @@ void http_var_init_owb(httpd_handle_t server) {
 esp_err_t save_data_termo(void) {
 
 	esp_err_t err = 0;
+	uint8_t ct_s;
+	char name[64];
+	for (ct_s = 0; ct_s < max_sensor; ct_s++) {
+
+		memset((uint8_t*) name, 0, 64);
+				sprintf(name, "t_name_%d", ct_s);
+				err = err| nvs_set_blob(nvs_data_handle, (char*) name,trm[ct_s].name_dt, 16);
+				if (err != ERR_OK) {
+					ESP_LOGW("TERMO_SAVE", "Error %X save data to flash4-%d", err, ct_s);
+				}
+				printf( "save t_name_%d=%s\n\r", ct_s,trm[ct_s].name_dt);
+	}
 
 //	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_dw), termo[0].t_dw);
 //	err = err | nvs_set_i16(nvs_data_handle, get_name(t0_up), termo[0].t_up);
 //	err = err | nvs_set_u8(nvs_data_handle, get_name(t0_st), termo[0].status);
-	err = err
-			| nvs_set_blob(nvs_data_handle, get_name(t0_name),
-					&(termo[0].name[0]), 16);
+//	err = err
+//			| nvs_set_blob(nvs_data_handle, get_name(t0_name),
+//					&(termo[0].name[0]), 16);
 
 //	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_dw), termo[1].t_dw);
 //	err = err | nvs_set_i16(nvs_data_handle, get_name(t1_up), termo[1].t_up);
 //	err = err | nvs_set_u8(nvs_data_handle, get_name(t1_st), termo[1].status);
-	err = err
-			| nvs_set_blob(nvs_data_handle, get_name(t1_name),
-					&(termo[1].name[0]), 16);
+//	err = err
+//			| nvs_set_blob(nvs_data_handle, get_name(t1_name),
+//					&(termo[1].name[0]), 16);
 
 //	err = err
 //			| nvs_set_u8(nvs_data_handle, get_name(repit_3r2),
@@ -711,22 +745,38 @@ esp_err_t save_data_termo(void) {
 esp_err_t load_data_termo(void) {
 
 	esp_err_t err = 0;
-	size_t lens = 4;
-	lens = 16;
+	size_t lens = 32;
+		uint8_t ct_s;
+		char name[64];
+		for (ct_s = 0; ct_s < max_sensor; ct_s++) {
+			lens = 16;
+
+					memset((uint8_t*) name, 0, 64);
+					memset(trm[ct_s].name_dt, 0, 16);
+					sprintf(name,"t_name_%d", ct_s);
+					err = err
+							| nvs_get_blob(nvs_data_handle, (char*) name,
+									trm[ct_s].name_dt, &lens);
+					if (err != ERR_OK) {
+						ESP_LOGE("TERMO_READ", "Error %s=%x read data to flash4-%d", name,
+								err, ct_s);
+					}
+					printf( "read t_name_%d=%s\n\r", ct_s,trm[ct_s].name_dt);
+		}
 
 //	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_dw), &termo[0].t_dw);
 //	err = err | nvs_get_i16(nvs_data_handle, get_name(t0_up), &termo[0].t_up);
 //	err = err | nvs_get_u8(nvs_data_handle, get_name(t0_st), &termo[0].status);
-	err = err
-			| nvs_get_blob(nvs_data_handle, get_name(t0_name),
-					&(termo[0].name[0]), &lens);
+//	err = err
+//			| nvs_get_blob(nvs_data_handle, get_name(t0_name),
+//					&(termo[0].name[0]), &lens);
 
 //	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_dw), &termo[1].t_dw);
 //	err = err | nvs_get_i16(nvs_data_handle, get_name(t1_up), &termo[1].t_up);
 //	err = err | nvs_get_u8(nvs_data_handle, get_name(t1_st), &termo[1].status);
-	err = err
-			| nvs_get_blob(nvs_data_handle, get_name(t1_name),
-					&(termo[1].name[0]), &lens);
+//	err = err
+//			| nvs_get_blob(nvs_data_handle, get_name(t1_name),
+//					&(termo[1].name[0]), &lens);
 
 //	err = err
 //			| nvs_get_u8(nvs_data_handle, get_name(repit_3r2),
@@ -734,19 +784,20 @@ esp_err_t load_data_termo(void) {
 	return err;
 }
 uint8_t load_def_termo(void) {
+	uint8_t ct_s;
+	char name[64];
+	for (ct_s = 0; ct_s < max_sensor; ct_s++) {
 
-	memset((uint8_t*) termo[0].name, 0, 16);
-	memcpy((uint8_t*) termo[0].name, (uint8_t*) "Термодатчик1", sizeof("Термодатчик1"));
 
-	termo[0].t_up = 30;
-	termo[0].t_dw = 10;
-	termo[0].status = 2;
 
-	memset((uint8_t*) termo[1].name, 0, 16);
-	memcpy((uint8_t*) termo[1].name, (uint8_t*) "Термодатчик2", sizeof("Термодатчик2"));
-	termo[1].t_up = 30;
-	termo[1].t_dw = 10;
-	termo[1].status = 2;
+	memset((uint8_t*) trm[ct_s].name_dt, 0, 16);
+	memcpy((uint8_t*) trm[ct_s].name_dt, (uint8_t*) "Термодатчик1", sizeof("Термодатчик1"));
+
+	termo[ct_s].t_up = 30;
+	termo[ct_s].t_dw = 10;
+	termo[ct_s].status = 2;
+
+	}
 	return 0;
 
 }

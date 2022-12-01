@@ -136,7 +136,7 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
         {
             if (rx_size >= (1 * sizeof(rmt_item32_t)))
             {
-//#ifdef OW_DEBUG
+#ifdef OW_DEBUG
                 ESP_LOGI(TAG, "rx_size: %d", rx_size);
 
                 for (int i = 0; i < (rx_size / sizeof(rmt_item32_t)); i++)
@@ -144,7 +144,7 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
                     ESP_LOGI(TAG, "i: %d, level0: %d, duration %d", i, rx_items[i].level0, rx_items[i].duration0);
                     ESP_LOGI(TAG, "i: %d, level1: %d, duration %d", i, rx_items[i].level1, rx_items[i].duration1);
                 }
-//#endif
+#endif
 
                 // parse signal and search for presence pulse
                 if ((rx_items[0].level0 == 0) && (rx_items[0].duration0 >= OW_DURATION_RESET - OW_DURATION_1_LOW))
