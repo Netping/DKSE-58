@@ -370,20 +370,29 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 	sprintf(buf_temp, " var data=[");
 	strcat(buf, buf_temp);
 	uint8_t sensor_cont;
-	if (num_devices != 0) {
-		if (num_devices<=1)
+	//if (num_devices != 0) {
+		if (num_devices>1)
 		{
+			if (num_devices>max_sensor)
+			{
+			sensor_cont = max_sensor;
+			}
+			else
+			{
 			sensor_cont = num_devices;
+			}
 		}
 		else
 		{
 			sensor_cont = 1;
 		}
-	} else {
-		sensor_cont = 0;
+//	} else {
+//		sensor_cont = 0;
+//
+//	}
 
-	}
-
+if(sensor_cont>1)
+{
 	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
 	//	printf( "out read t_name_%d=%s\n\r", ct,trm[ct].name_dt);
 	    sprintf(buf_temp, "{name:\"%s\",", trm[ct].name_dt);
@@ -407,6 +416,7 @@ esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
 	}
+}
 //	printf( "out read t_name_%d=%s\n\r", sensor_cont - 1,trm[sensor_cont - 1].name_dt);
 	sprintf(buf_temp, "{name:\"%s\",", trm[sensor_cont - 1].name_dt);
 	strcat(buf, buf_temp);
@@ -480,20 +490,29 @@ esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	sprintf(buf_temp, "var data=[");
 	strcat(buf, buf_temp);
 	uint8_t sensor_cont;
-	if (num_devices != 0) {
-			if (num_devices<=1)
+//	if (num_devices != 0) {
+			if (num_devices>1)
 			{
+				if (num_devices>max_sensor)
+				{
+				sensor_cont = max_sensor;
+				}
+				else
+				{
 				sensor_cont = num_devices;
+				}
 			}
 			else
 			{
 				sensor_cont = 1;
 			}
-		} else {
-			sensor_cont = 0;
+//		} else {
+//			sensor_cont = 0;
+//
+//		}
 
-		}
-
+			if(sensor_cont>1)
+			{
 	for (uint8_t ct = 0; ct < sensor_cont - 1; ct++) {
 	//	printf( "out read t_name_%d=%s\n\r", ct,trm[ct].name_dt);
 
@@ -517,6 +536,7 @@ esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 		sprintf(buf_temp, ",");
 		strcat(buf, buf_temp);
 	}
+			}
 //	printf( "out read t_name_%d=%s\n\r", sensor_cont - 1,trm[sensor_cont - 1].name_dt);
 	sprintf(buf_temp, "{name:\"%s\",", trm[sensor_cont - 1].name_dt);
 	strcat(buf, buf_temp);
@@ -600,12 +620,27 @@ static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 
 
 	uint8_t sensor_cont;
-	if (num_devices != 0) {
-		sensor_cont = num_devices;
-	} else {
-		sensor_cont = max_sensor;
+//	if (num_devices != 0) {
+			if (num_devices>1)
+			{
+				if (num_devices>max_sensor)
+				{
+				sensor_cont = max_sensor;
+				}
+				else
+				{
+				sensor_cont = num_devices;
+				}
+			}
+			else
+			{
+				sensor_cont = 1;
+			}
+//		} else {
+//			sensor_cont = 0;
+//
+//		}
 
-	}
 	for (uint16_t ct = 0; ct < sensor_cont; ct++) {
 		len = read_mess_smtp((char*) (buf + 5 + ct * 136), (uint8_t*) buf_temp);
 		memset(trm[ct].name_dt, 0, 16);

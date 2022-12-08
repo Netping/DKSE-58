@@ -54,10 +54,12 @@ function getclass(a) { return document.getElementsByClassName(a); }
 function chkfrm() {
     let n,f;
     let d='';
+	let indx='';
     for(termo in data) {
         f={};
-        f.name=frm.termo_name[termo].value;
-        f.termo_id=frm.termo_id[termo].value;
+		indx=parseInt(termo+1, 10);
+        f.name= getid('termo_name_'+indx).value;
+        f.termo_id=getid('termo_id_'+indx).value;
         console.log(f);
         d+=pack(packfmt,f);
     }
@@ -111,7 +113,7 @@ function save_modal_data() {
         <form id="ch_settings">
             <input type="text" style="display:none;" id="termo_num" name="termo_num" value="" readonly>
             <table class="modal_table">
-                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="32" id="termo_name" name="termo_name" value=""></td></tr>
+                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="15" id="termo_name" name="termo_name" value=""></td></tr>
                 <tr><td>ID датчика</td><td><input type="text" maxlength="40" id="termo_id" name="termo_id" value="" disabled></td></tr>
             </table>
             <div class="modal_buttons">

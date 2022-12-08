@@ -10,7 +10,7 @@
 
 //*****************************************Main config*************************************************
 #define Platform 58
-#define rev 4
+#define rev 5
 #define Assembly 0
 #define Bild 0
 

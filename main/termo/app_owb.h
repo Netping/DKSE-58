@@ -7,7 +7,7 @@
 #include "..\main\config_pj.h"
 
 #define term_ver 1
-#define term_rev 2
+#define term_rev 3
 
 
 #if MAIN_APP_OWB_H_ == 1
