@@ -89,33 +89,40 @@ void syslog_setIp(ip_addr_t addr) {
 int syslog_printf(const char *fmt, ...) {
 	uint8_t err=0;
 
-	if ((FW_data.net.V_IP_SYSL[0] != 0) || (FW_data.net.V_IP_SYSL[1] != 0)
-			|| (FW_data.net.V_IP_SYSL[2] != 0)
-			|| (FW_data.net.V_IP_SYSL[3] != 0)) {
-		int len = sprintf(syslog_message, "%s %s %s", "<133>",
-				FW_data.sys.V_Name_dev, fmt);
-		syslog_message[sizeof(syslog_message) - 1] = 0;
+	int len = sprintf(syslog_message, "%s %s %s", "<133>",
+					FW_data.sys.V_Name_dev, fmt);
+			syslog_message[sizeof(syslog_message) - 1] = 0;
+
+
+	if (FW_data.net.V_IP_SYSL[3] != 0) {
 
 #if CONFIG_SYSLOG_SERIAL
 		kputs(syslog_message);
 #endif
 
 		if (local_syslog_ctx == NULL) {
-			kputs("SysLog not init\n");
+			ESP_LOGE("SYSLOG=","SysLog not init\n");
 			return -1;
 		}
 
 		local_syslog_ctx->syslog_server = netconn_new(NETCONN_UDP);
 		if (local_syslog_ctx->syslog_server == NULL) {
-			kputs("Unable to alloc UDP connetions\n");
+			ESP_LOGE("SYSLOG=","Unable to alloc UDP connetions\n");
 			return -1;
 		}
 
-		netbuf_ref(local_syslog_ctx->send_buf, syslog_message, len);
-		if (netconn_sendto(local_syslog_ctx->syslog_server,
-				local_syslog_ctx->send_buf, &(local_syslog_ctx->server_addr),
-				CONFIG_SYSLOG_PORT) != ERR_OK) {
-			kputs("Unable to send log!\n");
+		err=netbuf_ref(local_syslog_ctx->send_buf, syslog_message, len);
+		if (err!= ERR_OK) {
+					ESP_LOGE("SYSLOG=","Buf data to send log err\n");
+		}
+
+
+		err=netconn_sendto(local_syslog_ctx->syslog_server,	local_syslog_ctx->send_buf, &(local_syslog_ctx->server_addr),CONFIG_SYSLOG_PORT);
+		if (err!= ERR_OK)
+		{
+			ESP_LOGE("SYSLOG=","Unable to send log err=%d\n",netconn_sendto(local_syslog_ctx->syslog_server,
+					local_syslog_ctx->send_buf, &(local_syslog_ctx->server_addr),
+					CONFIG_SYSLOG_PORT));
 		}
 
 		local_syslog_ctx->syslog_cnt++;
@@ -123,16 +130,17 @@ int syslog_printf(const char *fmt, ...) {
 		//  vPortFree(fmt);
 	//	return len;
 
-	} else {
+	}
+
+
+	else {
 		err += 1;
 	}
 
-	if ((FW_data.net.V_IP_SYSL1[0] != 0) || (FW_data.net.V_IP_SYSL1[1] != 0)
-				|| (FW_data.net.V_IP_SYSL1[2] != 0)
-				|| (FW_data.net.V_IP_SYSL1[3] != 0)) {
-			int len = sprintf(syslog_message, "%s %s %s", "<133>",
-					FW_data.sys.V_Name_dev, fmt);
-			syslog_message[sizeof(syslog_message) - 1] = 0;
+	if (FW_data.net.V_IP_SYSL1[3] != 0) {
+//			int len = sprintf(syslog_message, "%s %s %s", "<133>",
+//					FW_data.sys.V_Name_dev, fmt);
+//			syslog_message[sizeof(syslog_message) - 1] = 0;
 
 	#if CONFIG_SYSLOG_SERIAL
 			kputs(syslog_message);
@@ -165,12 +173,10 @@ int syslog_printf(const char *fmt, ...) {
 			err += 1;
 		}
 
-	if ((FW_data.net.V_IP_SYSL2[0] != 0) || (FW_data.net.V_IP_SYSL2[1] != 0)
-				|| (FW_data.net.V_IP_SYSL2[2] != 0)
-				|| (FW_data.net.V_IP_SYSL2[3] != 0)) {
-			int len = sprintf(syslog_message, "%s %s %s", "<133>",
-					FW_data.sys.V_Name_dev, fmt);
-			syslog_message[sizeof(syslog_message) - 1] = 0;
+	if (FW_data.net.V_IP_SYSL2[3] != 0) {
+//			int len = sprintf(syslog_message, "%s %s %s", "<133>",
+//					FW_data.sys.V_Name_dev, fmt);
+//			syslog_message[sizeof(syslog_message) - 1] = 0;
 
 	#if CONFIG_SYSLOG_SERIAL
 			kputs(syslog_message);
@@ -202,11 +208,12 @@ int syslog_printf(const char *fmt, ...) {
 		} else {
 			err += 1;
 		}
-
-if (err!=0)
-{
-	log_log_save_mess(SLOG_ERR);
-}
+//	vPortFree(fmt);
+//
+//if (err!=0)
+//{
+//	log_log_save_mess(SLOG_ERR);
+//}
 
 return err;
 }
@@ -220,11 +227,18 @@ return err;
 void syslog_init(ip_addr_t addr, ip_addr_t addr1, ip_addr_t addr2)
 
 {
-//     if ((FW_data.net.V_IP_SYSL[0]!=0)||(FW_data.net.V_IP_SYSL[1]!=0)||(FW_data.net.V_IP_SYSL[2]!=0)||(FW_data.net.V_IP_SYSL[3]!=0))
-//      {
+     if ((FW_data.net.V_IP_SYSL[0]!=0)||(FW_data.net.V_IP_SYSL[1]!=0)||(FW_data.net.V_IP_SYSL[2]!=0)||(FW_data.net.V_IP_SYSL[3]!=0))
+      {
 	local_syslog_ctx = (SysLog*) pvPortMalloc(300);
-	local_syslog_ctx->server_addr = addr;
+	local_syslog_ctx->server_addr=addr;
 	local_syslog_ctx->send_buf = netbuf_new();
+
+
+
+//	local_syslog_ctx->server_addr.u_addr.ip4.addr=addr.u_addr.ip4.addr;
+//	local_syslog_ctx->server_addr.type=addr.type;
+//	local_syslog_ctx->send_buf = netbuf_new();
+
 
 	local_syslog_ctx1 = (SysLog*) pvPortMalloc(300);
 	local_syslog_ctx1->server_addr = addr1;
@@ -234,6 +248,6 @@ void syslog_init(ip_addr_t addr, ip_addr_t addr1, ip_addr_t addr2)
 	local_syslog_ctx2->server_addr = addr2;
 	local_syslog_ctx2->send_buf = netbuf_new();
 
-//      }
+      }
 
 }

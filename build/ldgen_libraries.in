@@ -35,11 +35,9 @@ $<TARGET_FILE:__idf_freertos>
 $<TARGET_FILE:__idf_newlib>
 $<TARGET_FILE:__idf_cxx>
 $<TARGET_FILE:__idf_app_trace>
-$<TARGET_FILE:__idf_asio>
 $<TARGET_FILE:__idf_cbor>
 $<TARGET_FILE:__idf_unity>
 $<TARGET_FILE:__idf_cmock>
-$<TARGET_FILE:__idf_coap>
 $<TARGET_FILE:__idf_nghttp>
 $<TARGET_FILE:__idf_esp-tls>
 $<TARGET_FILE:__idf_esp_adc_cal>

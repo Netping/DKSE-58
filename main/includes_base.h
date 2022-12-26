@@ -37,7 +37,7 @@
 #include "lwip/apps/snmp_opts.h"
 #include "lwip/snmp.h"
 #include "../components/snmp.h"
-#include "../components/snmp_core.h"
+#include "..\components\snmp_core.h"
 #include "../components/snmp_mib2.h"
 
 #include "../components/snmp_scalar.h"

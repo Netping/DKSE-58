@@ -149,7 +149,7 @@ struct owb_driver
 
 typedef struct
 {
-	char name[16];
+	char name_dt[16];
 	uint8_t id[8];
 	int16_t temper;
 	float ftemper;
@@ -158,37 +158,42 @@ typedef struct
 	uint8_t status;
 	uint8_t status_old;
 
-	uint8_t TEMP_UP_L;
-	uint8_t TEMP_UP_SL;
-	uint8_t TEMP_UP_E;
-	uint8_t TEMP_UP_SM;
-	uint8_t TEMP_UP_SN;
-
-	uint8_t TEMP_DW_L;
-	uint8_t TEMP_DW_SL;
-	uint8_t TEMP_DW_E;
-	uint8_t TEMP_DW_SM;
-	uint8_t TEMP_DW_SN;
-
-	uint8_t TEMP_OK_L;
-	uint8_t TEMP_OK_SL;
-	uint8_t TEMP_OK_E;
-	uint8_t TEMP_OK_SM;
-	uint8_t TEMP_OK_SN;
-
-	uint8_t TEMP_ERR_L;
-	uint8_t TEMP_ERR_SL;
-	uint8_t TEMP_ERR_E;
-	uint8_t TEMP_ERR_SM;
-	uint8_t TEMP_ERR_SN;
-
-	uint8_t TEMP_CIKL_E;
-	uint8_t TEMP_CIKL_SM;
-	uint8_t ALL_EVENT;
+//	uint8_t TEMP_UP_L;
+//	uint8_t TEMP_UP_SL;
+//	uint8_t TEMP_UP_E;
+//	uint8_t TEMP_UP_SM;
+//	uint8_t TEMP_UP_SN;
+//
+//	uint8_t TEMP_DW_L;
+//	uint8_t TEMP_DW_SL;
+//	uint8_t TEMP_DW_E;
+//	uint8_t TEMP_DW_SM;
+//	uint8_t TEMP_DW_SN;
+//
+//	uint8_t TEMP_OK_L;
+//	uint8_t TEMP_OK_SL;
+//	uint8_t TEMP_OK_E;
+//	uint8_t TEMP_OK_SM;
+//	uint8_t TEMP_OK_SN;
+//
+//	uint8_t TEMP_ERR_L;
+//	uint8_t TEMP_ERR_SL;
+//	uint8_t TEMP_ERR_E;
+//	uint8_t TEMP_ERR_SM;
+//	uint8_t TEMP_ERR_SN;
+//
+//	uint8_t TEMP_CIKL_E;
+//	uint8_t TEMP_CIKL_SM;
+//	uint8_t ALL_EVENT;
 	uint8_t repit_3r;
 
 }FW_termo_t;
 
+
+typedef struct
+{
+	char name_dt[16];
+}FW_termo_n;
 
 
 /// @cond ignore

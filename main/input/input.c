@@ -247,14 +247,15 @@ static esp_err_t in_web1_handler(httpd_req_t *req) {
 		printf("\n\rGood web hook\n\r");
 		memset((uint8_t*) buf_temp, 0, 256);
 		uint8_t fault=1;
-		for (ct_s = 0; ct_s < in_port_n; ct_s++) {
+		for (ct_s = 1; ct_s < in_port_n+1; ct_s++) {
 
 			sprintf(buf_temp, "%d", ct_s);
-
+//			if(((req->uri[strlen(req->uri) - 1])>0x30)||(((req->uri[strlen(req->uri) - 1])==0x30)&&((req->uri[strlen(req->uri) - 2])>0x30)))
+//			{
 			if ((ct_s == (req->uri[strlen(req->uri) - 1] - 0x30))
 					&& ((strlen(req->uri) - 10) == 1)) {
 				sprintf(buf, "in_result('ok', -1, %d, %d)",
-						IN_PORT[ct_s].sost_filtr, IN_PORT[ct_s].count);
+						IN_PORT[ct_s-1].sost_filtr, IN_PORT[ct_s-1].count);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault=0;
 			}
@@ -263,10 +264,11 @@ static esp_err_t in_web1_handler(httpd_req_t *req) {
 					&& ((buf_temp[1]-0x30) == (req->uri[strlen(req->uri) - 1]) - 0x30)
 					&& ((strlen(req->uri) - 10) == 2)) {
 				sprintf(buf, "in_result('ok', -1, %d, %d)",
-						IN_PORT[ct_s].sost_filtr, IN_PORT[ct_s].count);
+						IN_PORT[ct_s-1].sost_filtr, IN_PORT[ct_s-1].count);
 				printf("\n\rhook %d %s\n\r", ct_s, buf);
 				fault=0;
 			}
+	//	}
 		}
 		if (fault==1)
 			{
@@ -305,19 +307,30 @@ static esp_err_t in_web2_handler(httpd_req_t *req) {
 		 {
 
 
-		uint16_t data=0;
-		for (ct_s = in_port_n; ct_s>=1; ct_s--) {
-		data=data<<1;
-		if (IN_PORT[ct_s-1].sost_filtr!=0)
+		char data[in_port_n]={0};
+		memset((char*) data, 0, in_port_n);
+		for (ct_s = 0; ct_s<in_port_n; ct_s++)
+		{
+		//data=data<<1;
+		if (IN_PORT[ct_s].sost_filtr==0)
 			{
-			 data=data|0x0001;
+
+			 data[ct_s]='0';
 			}
-		printf("\n\rGood data=%d\n\r",data);
+		else
+			{
+			 data[ct_s]='1';
+			}
+
 		}
+		printf("\n\rGood data=%s\n\r",data);
+
+		memset((uint8_t*) buf, 0, 2048);
+		sprintf(buf, "in_result('ok', %s)",data);
 
 
 
-		sprintf(buf, "in_result('ok', %d)",data);
+
     	}
 	else {
 		printf("\n\rFall  web hook\n\r");
@@ -367,31 +380,50 @@ esp_err_t load_data_input(void) {
 	esp_err_t err = 0;
 	uint8_t ct;
 	uint8_t name_line[32];
-	uint8_t lens = 16;
+	size_t lens = 16;
 	for (ct = 0; ct < in_port_n; ct++) {
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_in_t%d", ct);
-		err = err
-				| nvs_get_u16(nvs_data_handle, (char*) name_line,
+		sprintf((char*) name_line, "in_t%d", ct);
+		err =  nvs_get_u16(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].filtr_time));
+
+		if (err != ESP_OK) {
+							ESP_LOGE("IN_READ", "Error %X read data to flash-IN_PORT[%d].filtr_time", err, ct);
+						}
+
+		printf("Name load%d=%s\n\r",ct,IN_PORT[ct].name);
+
+		lens = 16;
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_name_%d", ct);
-		err = err
-				| nvs_get_blob(nvs_data_handle, (char*) name_line,
+		sprintf((char*) name_line, "in_name_%d", ct);
+		err =  nvs_get_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].name), &lens);
 
-		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_set_%d", ct);
+		if (err != ESP_OK) {
+									ESP_LOGE("IN_READ", "Error %X read data to flash-IN_PORT[%d].name", err, ct);
+								}
 
-		err = err
-				| nvs_get_blob(nvs_data_handle, (char*) name_line,
+		lens = 16;
+
+
+		memset((uint8_t*) &name_line, 0, 32);
+		sprintf((char*) name_line, "in_set_%d", ct);
+
+		err = nvs_get_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].set_name), &lens);
+		if (err != ESP_OK) {
+											ESP_LOGE("IN_READ", "Error %X read data to flash-IN_PORT[%d].set_name", err, ct);
+										}
+
+		lens = 16;
 
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_clr_%d", ct);
-		err = err
-				| nvs_get_blob(nvs_data_handle, (char*) name_line,
+		sprintf((char*) name_line, "in_clr_%d", ct);
+		err =  nvs_get_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].clr_name), &lens);
+		if (err != ESP_OK) {
+													ESP_LOGE("IN_READ", "Error %X read data to flash-IN_PORT[%d].clr_name", err, ct);
+												}
 	}
 	return err;
 }
@@ -403,27 +435,34 @@ esp_err_t save_data_input(void) {
 
 	for (ct = 0; ct < in_port_n; ct++) {
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_in_t%d", ct);
+		sprintf((char*) name_line, "in_t%d", ct);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name_line,
 						IN_PORT[ct].filtr_time);
+
+		printf("Name save%d=%s\n\r",ct,IN_PORT[ct].name);
+
+
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_name_%d", ct);
+		sprintf((char*) name_line, "in_name_%d", ct);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].name), 16);
 
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_set_%d", ct);
+		sprintf((char*) name_line, "in_set_%d", ct);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].set_name), 16);
 
 		memset((uint8_t*) &name_line, 0, 32);
-		sprintf((char*) name_line, "gpio_clr_%d", ct);
+		sprintf((char*) name_line, "in_clr_%d", ct);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name_line,
 						&(IN_PORT[ct].clr_name), 16);
+		if (err != ESP_OK) {
+							ESP_LOGE("IN_SAVE", "Error %X save data to flash %d", err, ct);
+						}
 
 	}
 	return err;
@@ -482,7 +521,7 @@ void log_swich_in(char *out, log_reple_t *input_reply) {
 	switch (input_reply->type_event) {
 
 	case IN_START:
-		sprintf(out_small, "Старт модуля входов\n\r");
+		sprintf(out_small, "Старт модуля входов v%d.%d\n\r",in_ver,in_rev);
 		break;
 	case IN_CLRE:
 		sprintf(out_small, "%s %s\n\r", IN_PORT[input_reply->line].name,

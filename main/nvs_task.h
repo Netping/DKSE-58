@@ -26,7 +26,8 @@
 #include "../main/input/input.h"
 #include "../main/notify/notify.h"
 
-
+#define nvs_ver 1
+#define nvs_rev 3
 
 //enum in_stype_t {
 //	WEB,
@@ -88,7 +89,8 @@ enum logs_source_t {
   OUT,
   TERM,
   UPD,
-  NTF
+  NTF,
+  TERMO
 };
 
 
@@ -140,6 +142,7 @@ typedef struct
 typedef struct
 {
    uint8_t data_param;
+   uint8_t data_reload;
 
 }nvs_flags_t;
 
@@ -324,7 +327,7 @@ extern nvs_flags_t nvs_flags;
 void nvs_task(void *pvParameters);
 uint8_t load_struct_flash_data (void);
 esp_err_t save_data_blok(void);
-
+esp_err_t load_data_blok(void);
 event_struct_t  event_io,event_wdt,event_termo,event_main;
 
 

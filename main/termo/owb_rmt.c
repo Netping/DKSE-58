@@ -73,7 +73,7 @@ sample code bearing this copyright.
 // overall slot duration
 #define OW_DURATION_SLOT 75
 // write 1 slot and read slot durations [us]
-#define OW_DURATION_1_LOW    2
+#define OW_DURATION_1_LOW    7//2
 #define OW_DURATION_1_HIGH (OW_DURATION_SLOT - OW_DURATION_1_LOW)
 // write 0 slot durations [us]
 #define OW_DURATION_0_LOW   65
@@ -108,6 +108,8 @@ static void onewire_flush_rmt_rx_buf(const OneWireBus * bus)
 
 static owb_status _reset(const OneWireBus * bus, bool * is_present)
 {
+
+//	printf("1wire reset rmt \n\r");
     rmt_item32_t tx_items[1] = {0};
     bool _is_present = false;
     int res = OWB_STATUS_OK;
@@ -145,7 +147,7 @@ static owb_status _reset(const OneWireBus * bus, bool * is_present)
 #endif
 
                 // parse signal and search for presence pulse
-                if ((rx_items[0].level0 == 0) && (rx_items[0].duration0 >= OW_DURATION_RESET - 2))
+                if ((rx_items[0].level0 == 0) && (rx_items[0].duration0 >= OW_DURATION_RESET - OW_DURATION_1_LOW))
                 {
                     if ((rx_items[0].level1 == 1) && (rx_items[0].duration1 > 0))
                     {
@@ -208,6 +210,8 @@ static rmt_item32_t _encode_write_slot(uint8_t val)
 /** NOTE: The data is shifted out of the low bits, eg. it is written in the order of lsb to msb */
 static owb_status _write_bits(const OneWireBus * bus, uint8_t out, int number_of_bits_to_write)
 {
+//	printf("1wire write bit rmt \n\r");
+
     rmt_item32_t tx_items[MAX_BITS_PER_SLOT + 1] = {0};
     owb_rmt_driver_info * info = info_of_driver(bus);
 
@@ -257,6 +261,7 @@ static rmt_item32_t _encode_read_slot(void)
 /** NOTE: Data is read into the high bits, eg. each bit read is shifted down before the next bit is read */
 static owb_status _read_bits(const OneWireBus * bus, uint8_t *in, int number_of_bits_to_read)
 {
+//	printf("1wire read bit rmt \n\r");
     rmt_item32_t tx_items[MAX_BITS_PER_SLOT + 1] = {0};
     uint8_t read_data = 0;
     int res = OWB_STATUS_OK;
@@ -354,7 +359,6 @@ static struct owb_driver rmt_function_table =
     .write_bits = _write_bits,
     .read_bits = _read_bits
 };
-
 static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
                         rmt_channel_t tx_channel, rmt_channel_t rx_channel)
 {
@@ -390,9 +394,10 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
         rmt_set_source_clk(info->tx_channel, RMT_BASECLK_APB);  // only APB is supported by IDF 4.2
         if (rmt_driver_install(rmt_tx.channel, 0, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED) == ESP_OK)
         {
+        	 ESP_LOGI(TAG, "Good to install tx driver");
             rmt_config_t rmt_rx = {0};
             rmt_rx.channel = info->rx_channel;
-            rmt_rx.gpio_num =9; // gpio_num;
+            rmt_rx.gpio_num =pin_1w_in; // gpio_num;
             rmt_rx.clk_div = 80;
             rmt_rx.mem_block_num = 1;
             rmt_rx.rmt_mode = RMT_MODE_RX;
@@ -406,6 +411,7 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
                 {
                     rmt_get_ringbuf_handle(info->rx_channel, &info->rb);
                     status = OWB_STATUS_OK;
+                    ESP_LOGI(TAG, "Good to install rx driver");
                 }
                 else
                 {
@@ -442,17 +448,116 @@ static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
     // attach RMT channels to new gpio pin
     // ATTENTION: set pin for rx first since gpio_output_disable() will
     //            remove rmt output signal in matrix!
-    rmt_set_pin(info->rx_channel, RMT_MODE_RX, gpio_num);
+    rmt_set_pin(info->rx_channel, RMT_MODE_RX, pin_1w_in);
     rmt_set_pin(info->tx_channel, RMT_MODE_TX, gpio_num);
 
     // force pin direction to input to enable path to RX channel
-    PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[gpio_num]);
+    PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[pin_1w_in]);
 
     // enable open drain
-    GPIO.pin[gpio_num].pad_driver = 1;
+ //   GPIO.pin[gpio_num].pad_driver = 1;
 
     return status;
 }
+
+//static owb_status _init(owb_rmt_driver_info *info, gpio_num_t gpio_num,
+//                        rmt_channel_t tx_channel, rmt_channel_t rx_channel)
+//{
+//    owb_status status = OWB_STATUS_HW_ERROR;
+//
+//    // Ensure the RMT peripheral is not already running
+//    // Note: if using RMT elsewhere, don't call this here, call it at the start of your program instead.
+//    //periph_module_disable(PERIPH_RMT_MODULE);
+//    //periph_module_enable(PERIPH_RMT_MODULE);
+//
+//    info->bus.driver = &rmt_function_table;
+//    info->tx_channel = tx_channel;
+//    info->rx_channel = rx_channel;
+//    info->gpio = gpio_num;
+//    info->gpio_i = gpio_num-1;
+//#ifdef OW_DEBUG
+//    ESP_LOGI(TAG, "RMT TX channel: %d", info->tx_channel);
+//    ESP_LOGI(TAG, "RMT RX channel: %d", info->rx_channel);
+//#endif
+//
+//    rmt_config_t rmt_tx = {0};
+//    rmt_tx.channel = info->tx_channel;
+//    rmt_tx.gpio_num = gpio_num;
+//    rmt_tx.mem_block_num = 1;
+//    rmt_tx.clk_div = 80;
+//    rmt_tx.tx_config.loop_en = false;
+//    rmt_tx.tx_config.carrier_en = false;
+//    rmt_tx.tx_config.idle_level = 1;
+//    rmt_tx.tx_config.idle_output_en = true;
+//    rmt_tx.rmt_mode = RMT_MODE_TX;
+//    if (rmt_config(&rmt_tx) == ESP_OK)
+//    {
+//        rmt_set_source_clk(info->tx_channel, RMT_BASECLK_APB);  // only APB is supported by IDF 4.2
+//        if (rmt_driver_install(rmt_tx.channel, 0, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED) == ESP_OK)
+//        {
+//            rmt_config_t rmt_rx = {0};
+//            rmt_rx.channel = info->rx_channel;
+//            rmt_rx.gpio_num =gpio_num-1; // gpio_num;
+//            rmt_rx.clk_div = 80;
+//            rmt_rx.mem_block_num = 1;
+//            rmt_rx.rmt_mode = RMT_MODE_RX;
+//            rmt_rx.rx_config.filter_en = true;
+//            rmt_rx.rx_config.filter_ticks_thresh = 30;
+//            rmt_rx.rx_config.idle_threshold = OW_DURATION_RX_IDLE;
+//            if (rmt_config(&rmt_rx) == ESP_OK)
+//            {
+//                rmt_set_source_clk(info->rx_channel, RMT_BASECLK_APB);  // only APB is supported by IDF 4.2
+//                if (rmt_driver_install(rmt_rx.channel, 512, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM | ESP_INTR_FLAG_SHARED) == ESP_OK)
+//                {
+//                    rmt_get_ringbuf_handle(info->rx_channel, &info->rb);
+//                    status = OWB_STATUS_OK;
+//                }
+//                else
+//                {
+//                    ESP_LOGE(TAG, "failed to install rx driver");
+//                }
+//            }
+//            else
+//            {
+//                status = OWB_STATUS_HW_ERROR;
+//                ESP_LOGE(TAG, "failed to configure rx, uninstalling rmt driver on tx channel");
+//                rmt_driver_uninstall(rmt_tx.channel);
+//            }
+//        }
+//        else
+//        {
+//            ESP_LOGE(TAG, "failed to install tx driver");
+//        }
+//    }
+//    else
+//    {
+//        ESP_LOGE(TAG, "failed to configure tx");
+//    }
+//
+//    // attach GPIO to previous pin
+//    if (gpio_num < 32)
+//    {
+//        GPIO.enable_w1ts = (0x1 << gpio_num);
+//    }
+//    else
+//    {
+//        GPIO.enable1_w1ts.data = (0x1 << (gpio_num - 32));
+//    }
+//
+//    // attach RMT channels to new gpio pin
+//    // ATTENTION: set pin for rx first since gpio_output_disable() will
+//    //            remove rmt output signal in matrix!
+//    rmt_set_pin(info->rx_channel, RMT_MODE_RX, gpio_num-1);
+//    rmt_set_pin(info->tx_channel, RMT_MODE_TX, gpio_num);
+//
+//    // force pin direction to input to enable path to RX channel
+//    PIN_INPUT_ENABLE(GPIO_PIN_MUX_REG[gpio_num-1]);
+//
+//    // enable open drain
+//    GPIO.pin[gpio_num].pad_driver = 0;
+//
+//    return status;
+//}
 
 OneWireBus * owb_rmt_initialize(owb_rmt_driver_info * info, gpio_num_t gpio_num,
                                 rmt_channel_t tx_channel, rmt_channel_t rx_channel)
@@ -466,7 +571,7 @@ OneWireBus * owb_rmt_initialize(owb_rmt_driver_info * info, gpio_num_t gpio_num,
         ESP_LOGE(TAG, "_init() failed with status %d", status);
     }
 
-    info->bus.strong_pullup_gpio = GPIO_NUM_NC;
+  //  info->bus.strong_pullup_gpio = GPIO_NUM_NC;
 
     return &(info->bus);
 }

@@ -29,7 +29,7 @@ typedef struct {
 } notify_data_t;
 
 enum notf_event_t {
-	NOTF_START, NOTF_SETE, NOTF_SETT, NOTF_ERR
+	NOTF_START, NOTF_SETE, NOTF_SETT, NOTF_ERR,NOTF_ACTIV
 };
 ip_addr_t ip_trap;
 notify_data_t NOTF[not_max_n];
@@ -351,12 +351,12 @@ esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 
 	for (ct_s = 0; ct_s < in_port_n - 1; ct_s++) {
 
-		sprintf(buf_temp, "{value:\"%d\",text:\"input%d\"},", ct_s, ct_s);
+		sprintf(buf_temp, "{value:\"%d\",text:\"Вход%d\"},", ct_s, ct_s);
 		strcat(buf, buf_temp);
 
 	}
 
-	sprintf(buf_temp, "{value:\"%d\",text:\"input%d\"}", in_port_n - 1,
+	sprintf(buf_temp, "{value:\"%d\",text:\"Вход%d\"}", in_port_n - 1,
 	in_port_n - 1);
 	strcat(buf, buf_temp);
 	start_ct = in_port_n;
@@ -367,15 +367,39 @@ esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	for (ct_s = 0; ct_s < out_port_n - 1; ct_s++) {
 
-		sprintf(buf_temp, "{value:\"%d\",text:\"output%d\"},", ct_s + start_ct,
+		sprintf(buf_temp, "{value:\"%d\",text:\"Выход%d\"},", ct_s + start_ct,
 				ct_s);
 		strcat(buf, buf_temp);
 	}
-	sprintf(buf_temp, "{value:\"%d\",text:\"output%d\"}",
+	sprintf(buf_temp, "{value:\"%d\",text:\"Выход%d\"}",
 	out_port_n + start_ct - 1,
 	out_port_n - 1);
 	strcat(buf, buf_temp);
 #endif
+
+#if MAIN_APP_OWB_H_ == 1
+	uint8_t sensor_cont;
+	if (num_devices != 0) {
+		sensor_cont = num_devices;
+	} else {
+		sensor_cont = max_sensor;
+
+	}
+
+	sprintf(buf_temp, ",");
+	strcat(buf, buf_temp);
+	for (ct_s = 0; ct_s < sensor_cont - 1; ct_s++) {
+
+		sprintf(buf_temp, "{value:\"%d\",text:\"Термодатчик%d\"},",
+				ct_s + start_ct, ct_s);
+		strcat(buf, buf_temp);
+	}
+	sprintf(buf_temp, "{value:\"%d\",text:\"Термодатчик%d\"}",
+	out_port_n + start_ct - 1,
+	out_port_n - 1);
+	strcat(buf, buf_temp);
+#endif
+
 	sprintf(buf_temp, "];\n\r");
 	strcat(buf, buf_temp);
 
@@ -655,10 +679,15 @@ void log_swich_notf(char *out, log_reple_t *input_reply) {
 	switch (input_reply->type_event) {
 
 	case NOTF_START:
-		sprintf(out_small, "Старт модуля уведомления\n\r");
+		sprintf(out_small, "Старт модуля уведомления v%d.%d\n\r",not_ver,not_rev);
 		break;
 	case NOTF_SETE:
 		sprintf(out_small, "Активировано уведомление: %s \n\r",
+				NOTF[input_reply->line].name);
+
+		break;
+		case NOTF_ACTIV:
+		sprintf(out_small, "Сработка уведомление: %s \n\r",
 				NOTF[input_reply->line].name);
 
 		break;
@@ -712,14 +741,22 @@ void notify_app(void *pvParameters) {
 	log_start_notf();
 	uint8_t nf_ct = 0;
 	uint8_t event_nf = 0;
+	uint8_t event_nf_old[not_max_n] = {0};
 	char subj[64] = { };
 	uint8_t err;
 	uint8_t ipt[4];
-	uint8_t indexi,indexn=0;
+	uint8_t indexi, indexn = 0;
 	uint8_t index_old;
-	char mess[256]={0};
-	while (1) {
+	char mess[256] = { 0 };
+	uint8_t sensor_cont;
 
+	while (1) {
+		if (num_devices != 0) {
+			sensor_cont = num_devices;
+		} else {
+			sensor_cont = max_sensor;
+
+		}
 		for (nf_ct = 0; nf_ct < notf_save; nf_ct++) {
 			if (NOTF[nf_ct].active == 1) {
 				event_nf = 0;
@@ -728,57 +765,85 @@ void notify_app(void *pvParameters) {
 						strlen(NOTF[nf_ct].expr));
 				if (NOTF[nf_ct].signal_n < in_port_n) {
 
-					printf("event_nf=%d.%d.%d.%d.%d\n\r",ex_data[0],ex_data[1],ex_data[2],ex_data[3],ex_data[4]);
-					printf("IN_PORT[NOTF[nf_ct].signal_n].sost_filtr=%d\n\r",IN_PORT[NOTF[nf_ct].signal_n].sost_filtr);
+					printf("event_nf=%d.%d.%d.%d.%d\n\r", ex_data[0],
+							ex_data[1], ex_data[2], ex_data[3], ex_data[4]);
+					printf("IN_PORT[NOTF[nf_ct].signal_n].sost_filtr=%d\n\r",
+							IN_PORT[NOTF[nf_ct].signal_n].sost_filtr);
 
 					event_nf = notife_run(ex_data,
 							IN_PORT[NOTF[nf_ct].signal_n].sost_filtr);
-					printf("event_nf=%d\n\r",event_nf);
+
+					printf("event_nf=%d\n\r", event_nf);
+					if ((event_nf != 0) && (event_nf_old[nf_ct] == 0)) {
+										event_nf = 1;
+										log_notf_save_mess(NOTF_ACTIV, nf_ct);
+									} else {
+										event_nf = 0;
+									}
 
 				} else if (NOTF[nf_ct].signal_n < (in_port_n + out_port_n)) {
 					event_nf =
 							notife_run(ex_data,
 									OUT_PORT[NOTF[nf_ct].signal_n - in_port_n].realtime);
+					if ((event_nf != 0) && (event_nf_old[nf_ct] == 0)) {
+										event_nf = 1;
+										log_notf_save_mess(NOTF_ACTIV, nf_ct);
+									} else {
+										event_nf = 0;
+									}
+				} else if (NOTF[nf_ct].signal_n
+						< (in_port_n + out_port_n + sensor_cont)) {
+					event_nf = notife_run(ex_data,
+							termo[NOTF[nf_ct].signal_n
+									- (in_port_n + out_port_n)].temper);
+					if ((event_nf != 0) && (event_nf_old[nf_ct] == 0)) {
+										event_nf = 1;
+										log_notf_save_mess(NOTF_ACTIV, nf_ct);
+									} else {
+										event_nf = 0;
+									}
 				}
 
-				printf("NOTF[%d].method_n=%d\n\r",nf_ct, NOTF[nf_ct].method_n);
-				memset((uint8_t*)mess,0,256);
-				memcpy(mess,NOTF[nf_ct].text_mess,strlen(NOTF[nf_ct].text_mess));
-				strcat( mess,"..");
-				if ((event_nf == 1) && (NOTF[nf_ct].method_n == 0)) {
-					memset(FW_data.smtp.V_EMAIL_TO,0,32);
-					memset(FW_data.smtp.V_EMAIL_CC1,0,32);
-					memset(FW_data.smtp.V_EMAIL_CC2,0,32);
-					dec_email(NOTF[nf_ct].send_to, FW_data.smtp.V_EMAIL_TO,
-							FW_data.smtp.V_EMAIL_CC1,
-							FW_data.smtp.V_EMAIL_CC2);
 
-					printf("%s %s %s\n\r", FW_data.smtp.V_EMAIL_TO,FW_data.smtp.V_EMAIL_CC1,FW_data.smtp.V_EMAIL_CC2);
+				printf("NOTF[%d].method_n=%d\n\r", nf_ct, NOTF[nf_ct].method_n);
+				memset((uint8_t*) mess, 0, 256);
+				memcpy(mess, NOTF[nf_ct].text_mess,
+						strlen(NOTF[nf_ct].text_mess));
+				strcat(mess, "..");
+				if ((event_nf == 1) && (NOTF[nf_ct].method_n == 0)) {
+					memset(FW_data.smtp.V_EMAIL_TO, 0, 32);
+					memset(FW_data.smtp.V_EMAIL_CC1, 0, 32);
+					memset(FW_data.smtp.V_EMAIL_CC2, 0, 32);
+					dec_email(NOTF[nf_ct].send_to, FW_data.smtp.V_EMAIL_TO,
+							FW_data.smtp.V_EMAIL_CC1, FW_data.smtp.V_EMAIL_CC2);
+
+					printf("%s %s %s\n\r", FW_data.smtp.V_EMAIL_TO,
+							FW_data.smtp.V_EMAIL_CC1, FW_data.smtp.V_EMAIL_CC2);
 
 					if (NOTF[nf_ct].name[0] == 0) {
 						printf("NOTF[nf_ct].name[0] == 0\n\r");
 						if (NOTF[nf_ct].signal_n < in_port_n) {
-							sprintf(subj, "NetPing %c%d%c %cВход%d%c", '%',
+							sprintf(subj, "NetPing %c%d%c %cпїЅпїЅпїЅпїЅ%d%c", '%',
 									serial_id, '%', '%', NOTF[nf_ct].signal_n,
 									'%');
 						} else if (NOTF[nf_ct].signal_n
 								< (in_port_n + out_port_n)) {
-							sprintf(subj, "NetPing %c%d%c %cВыход%d%c", '%',
+							sprintf(subj, "NetPing %c%d%c %cпїЅпїЅпїЅпїЅпїЅ%d%c", '%',
 									serial_id, '%', '%',
 									NOTF[nf_ct].signal_n - in_port_n, '%');
 						}
 						send_smtp_mess(mess, subj);
 					} else {
-						printf("send_smtp_mess(NOTF[nf_ct].text_mess, NOTF[nf_ct].name)\n\r");
+						printf(
+								"send_smtp_mess(NOTF[nf_ct].text_mess, NOTF[nf_ct].name)\n\r");
 						send_smtp_mess(mess, NOTF[nf_ct].name);
 
 					}
 
 				}
 
-
-					if ((event_nf == 1) && (NOTF[nf_ct].method_n == 1)) {
-		///		if ((NOTF[nf_ct].method_n == 1)) {
+				if ((event_nf == 1) && (NOTF[nf_ct].method_n == 1)) {
+					///		if ((NOTF[nf_ct].method_n == 1)) {
 
 					if ((NOTF[nf_ct].send_to[0] < 0x3a)
 							&& (NOTF[nf_ct].send_to[0] > 0x2f)) {
@@ -787,35 +852,42 @@ void notify_app(void *pvParameters) {
 //						ipt[1]=(NOTF[nf_ct].send_to[3]-0x30)*100+(NOTF[nf_ct].send_to[4]-0x30)*10+(NOTF[nf_ct].send_to[5]-0x30);
 //						ipt[2]=(NOTF[nf_ct].send_to[7]-0x30)*100+(NOTF[nf_ct].send_to[8]-0x30)*10+(NOTF[nf_ct].send_to[9]-0x30);
 //						ipt[3]=(NOTF[nf_ct].send_to[11]-0x30)*100+(NOTF[nf_ct].send_to[12]-0x30)*10+(NOTF[nf_ct].send_to[13]-0x30);
-						indexi=0;
-						indexn=0;
-						index_old=0;
-						ipt[0]=0;
-						ipt[1]=0;
-						ipt[2]=0;
-						ipt[3]=0;
+						indexi = 0;
+						indexn = 0;
+						index_old = 0;
+						ipt[0] = 0;
+						ipt[1] = 0;
+						ipt[2] = 0;
+						ipt[3] = 0;
 						for (uint8_t ipct = 0;
-								ipct < strlen(NOTF[nf_ct].send_to)+1; ipct++) {
-							if ((NOTF[nf_ct].send_to[ipct] == '.')||(ipct==strlen(NOTF[nf_ct].send_to))) {
-								indexi = ipct-index_old;
-								index_old=ipct+1;
+								ipct < strlen(NOTF[nf_ct].send_to) + 1;
+								ipct++) {
+							if ((NOTF[nf_ct].send_to[ipct] == '.')
+									|| (ipct == strlen(NOTF[nf_ct].send_to))) {
+								indexi = ipct - index_old;
+								index_old = ipct + 1;
 								if (indexi >= 3) {
-									ipt[indexn] = (NOTF[nf_ct].send_to[ipct-3] - 0x30)*100;
-							//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi,(NOTF[nf_ct].send_to[ipct-3]));
+									ipt[indexn] = (NOTF[nf_ct].send_to[ipct - 3]
+											- 0x30) * 100;
+									//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi,(NOTF[nf_ct].send_to[ipct-3]));
 								}
 								if (indexi >= 2) {
-									ipt[indexn] = ipt[indexn]+(NOTF[nf_ct].send_to[ipct-2] - 0x30)*10;
-							//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi+1,(NOTF[nf_ct].send_to[ipct-2]));
+									ipt[indexn] = ipt[indexn]
+											+ (NOTF[nf_ct].send_to[ipct - 2]
+													- 0x30) * 10;
+									//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi+1,(NOTF[nf_ct].send_to[ipct-2]));
 								}
 								if (indexi >= 1) {
-									ipt[indexn] = ipt[indexn]+(NOTF[nf_ct].send_to[ipct-1] - 0x30);
-							//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi+2,(NOTF[nf_ct].send_to[ipct-1]));
+									ipt[indexn] = ipt[indexn]
+											+ (NOTF[nf_ct].send_to[ipct - 1]
+													- 0x30);
+									//		printf("NOTF[%d].send_to[%d]=%c\n\r",nf_ct,indexi+2,(NOTF[nf_ct].send_to[ipct-1]));
 								}
 
-							//	printf("indexn=%d\n\r",indexn);
+								//	printf("indexn=%d\n\r",indexn);
 								indexn++;
-							//	printf("indexi=%d\n\r",indexi);
-							//	printf("ipct=%d\n\r",ipct-1);
+								//	printf("indexi=%d\n\r",indexi);
+								//	printf("ipct=%d\n\r",ipct-1);
 								indexi++;
 
 							}
@@ -828,27 +900,27 @@ void notify_app(void *pvParameters) {
 					} else {
 						dns_gethostbyname(NOTF[nf_ct].send_to, &ip_trap,
 								trap_dns_found, &err);
-						printf("IPN=%x\n\r", ip_trap.u_addr.ip4.addr);
+						printf("IPN=%x\n\r", ip_trap.addr);
 					}
 
 					if (err != ERR_OK) {
 
-						IP4_ADDR(&ip_trap.u_addr.ip4, ipt[0], ipt[1], ipt[2],
+						IP4_ADDR(&ip_trap, ipt[0], ipt[1], ipt[2],
 								ipt[3]);
 //						ip_syslog1.type = 4;
 //						ip_syslog1.u_addr.ip4.addr = ip4_syslog.addr;
-						printf("IPN=%x\n\r", ip_trap.u_addr.ip4.addr);
+						printf("IPN=%x\n\r", ip_trap.addr);
 						err = 0;
 					}
 
 					if (NOTF[nf_ct].signal_n < in_port_n) {
-						printf("in_send_mess_trap=%d\n\r",event_nf);
-						in_send_mess_trap(&(ip_trap.u_addr.ip4.addr),
+						printf("in_send_mess_trap=%d\n\r", event_nf);
+						in_send_mess_trap(&(ip_trap.addr),
 								NOTF[nf_ct].signal_n);
 					} else if (NOTF[nf_ct].signal_n
 							< (in_port_n + out_port_n)) {
-						printf("out_send_mess_trap=%d\n\r",event_nf);
-						out_send_mess_trap(&(ip_trap.u_addr.ip4.addr),
+						printf("out_send_mess_trap=%d\n\r", event_nf);
+						out_send_mess_trap(&(ip_trap.addr),
 								(NOTF[nf_ct].signal_n - in_port_n));
 					}
 
@@ -901,8 +973,8 @@ void decode_expr(int *out_ex, char *mess, size_t len) {
 		} else if (memcmp((char*) (mess + index), "!=", 2) == 0) {
 			printf("!=%c\n\r", mess[index]);
 			out_ex[0] = 6;
-		}else if (memcmp((char*) (mess + index), "==", 2) == 0) {
-			printf("===%c\n\r", mess[index]);
+		} else if (memcmp((char*) (mess + index), "==", 2) == 0) {
+			printf("==%c\n\r", mess[index]);
 			out_ex[0] = 7;
 		}
 		index += 2;
@@ -1001,11 +1073,10 @@ void decode_expr(int *out_ex, char *mess, size_t len) {
 		} else if (memcmp((char*) (mess + index), "!=", 2) == 0) {
 			printf("!==%c\n\r", mess[index]);
 			out_ex[3] = 6;
+		} else if (memcmp((char*) (mess + index), "==", 2) == 0) {
+			printf("===%c\n\r", mess[index]);
+			out_ex[3] = 7;
 		}
-		else if (memcmp((char*) (mess + index), "==", 2) == 0) {
-					printf("===%c\n\r", mess[index]);
-					out_ex[3] = 7;
-				}
 		index += 2;
 	}
 	printf("out_ex[3]=%d\n\r", out_ex[3]);
@@ -1087,11 +1158,11 @@ uint8_t notife_run(int *in, int val) {
 	}
 		break;
 	case 7: {
-			if (val == in[1]) {
-				result1 = 1;
-			}
+		if (val == in[1]) {
+			result1 = 1;
 		}
-			break;
+	}
+		break;
 	default:
 		result1 = 0;
 	}
@@ -1137,31 +1208,27 @@ uint8_t notife_run(int *in, int val) {
 		result2 = 0;
 	}
 
-	if (in[2]!=0)
-	{
-	switch (in[2]) {
-	case 1: {
-		if ((result1 == 1) || (result2 == 1)) {
-			out = 1;
-			printf("out=%d\n\r",out);
+	if (in[2] != 0) {
+		switch (in[2]) {
+		case 1: {
+			if ((result1 == 1) || (result2 == 1)) {
+				out = 1;
+				printf("out=%d\n\r", out);
+			}
 		}
-	}
-		break;
-	case 2: {
-		if ((result1 == 1) && (result2 == 1)) {
-			out = 1;
+			break;
+		case 2: {
+			if ((result1 == 1) && (result2 == 1)) {
+				out = 1;
+			}
 		}
+			break;
+		default:
+			out = 0;
+		}
+	} else {
+		out = result1;
 	}
-		break;
-	default:
-		out = 0;
-	}
-	}
-	else
-	{
-	  out = result1;
-	}
-
 
 	return out;
 }

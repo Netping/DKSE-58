@@ -27,7 +27,7 @@
  * This file is part of the lwIP TCP/IP stack.
  *
  * Author: Simon Goldschmidt
- *
+ *SNMP_USE_NETCONN
  */
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
@@ -47,6 +47,8 @@
 
 /* Enable all Espressif-only options */
 
+
+#define LWIP_NETCONN                    1
 /*
    -----------------------------------------------
    ---------- Platform specific locking ----------

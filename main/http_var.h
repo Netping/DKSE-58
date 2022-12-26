@@ -10,6 +10,9 @@
 
 #include "../main/config_pj.h"
 
+#define http_ver 1
+#define http_rev 2
+
 
 typedef struct
 {

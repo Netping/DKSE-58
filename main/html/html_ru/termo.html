@@ -2,13 +2,13 @@
 <html><head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta charset="UTF-8"/>
-<title>Веб-интерфейс</title>
+<title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
 <link rel="stylesheet" href="index.css">
 <script src="menu.js" charset="utf-8"></script>
 <!--script src="menu_get.cgi"></script-->
 <script src="termo_get.cgi?add_devname_menu"></script>
 <!--temp scripts-->
-<script type="text/javascript" src="temp.js"></script>
+<!--script type="text/javascript" src="temp.js"></script-->
 <!--end temp scripts-->
 <style>
 form {max-width:1110px;}
@@ -37,11 +37,13 @@ caption {caption-side:bottom;}
 table.modal_table td:last-child, table.modal_table th:last-child {text-align: right;}
 div.modal_buttons {text-align:right;margin-top: 20px;}
 form td button[type="button"] {width:100%}
+
+table.modal_table input {width: auto;}
 </style>
 </head>
 <body>
 <script>
-menu('Датчики температуры');
+menu('Р”Р°С‚С‡РёРєРё С‚РµРјРїРµСЂР°С‚СѓСЂС‹');
 menu_adjust(menu_data);
 
 // var termo_status_txt=['123','123','123','123'];
@@ -52,10 +54,13 @@ function getclass(a) { return document.getElementsByClassName(a); }
 function chkfrm() {
     let n,f;
     let d='';
+	let indx='';
     for(termo in data) {
         f={};
-        f.name=frm.termo_name[termo].value;
-        f.termo_id=frm.termo_id[termo].value;
+		indx=parseInt(termo+1, 10);
+        f.name= getid('termo_name_'+indx).value;
+        f.termo_id=getid('termo_id_'+indx).value;
+        console.log(f);
         d+=pack(packfmt,f);
     }
     document.sender.data.value=d;
@@ -64,8 +69,11 @@ function chkfrm() {
 
 function save_modal_data() {
     var termo_num = getid('termo_num').value;
+    console.log(termo_num);
     getid('termo_name_' + termo_num).value = getid('termo_name').value;
+    console.log(getid('termo_name').value);
     getid('termo_id_' + termo_num).value = getid('termo_id').value;
+    console.log(getid('termo_id').value);
     chkfrm();
 }
 
@@ -77,18 +85,18 @@ function save_modal_data() {
 <form name="frm" method="post" action="error.html">
 <table id="edt_x_ref" class="paramtable">
 <caption class="send_button_container">
-<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div id="error" class="alert" style="float:left;visibility:hidden;">РќРµС‚ СЃРІСЏР·Рё СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј! Р”Р°РЅРЅС‹Рµ СѓСЃС‚Р°СЂРµР»Рё!</div>
 <div style="clear:both"></div>
 </caption>
-<tr><th style="text-align:center;" class="cpt" colspan="8">ДАТЧИКИ ТЕМПЕРАТУРЫ<th><tr>
+<tr><th style="text-align:center;" class="cpt" colspan="8">Р”РђРўР§РРљР РўР•РњРџР•Р РђРўРЈР Р«<th><tr>
 <tr>
-<th>Датчик</th>
-<th style="display:none;">Памятка</th>
-<th style="display:none;">ID датчика</th>
+<th>Р”Р°С‚С‡РёРє</th>
+<th style="display:none;">РџР°РјСЏС‚РєР°</th>
+<th style="display:none;">ID РґР°С‚С‡РёРєР°</th>
 
-<th>Памятка</th>
-<th>Температура</th>
-<th>Настройка</th></tr>
+<th>РџР°РјСЏС‚РєР°</th>
+<th>РўРµРјРїРµСЂР°С‚СѓСЂР°</th>
+<th>РќР°СЃС‚СЂРѕР№РєР°</th></tr>
 </table>
 </form>
 
@@ -101,16 +109,16 @@ function save_modal_data() {
 <div id="modalSettings" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <p id="modal_title">НАСТРОЙКИ ДАТЧИКА </p>
+        <p id="modal_title">РќРђРЎРўР РћР™РљР Р”РђРўР§РРљРђ </p>
         <form id="ch_settings">
             <input type="text" style="display:none;" id="termo_num" name="termo_num" value="" readonly>
             <table class="modal_table">
-                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="32" id="termo_name" name="termo_name" value=""></td></tr>
-                <tr><td>ID датчика</td><td><input type="text" maxlength="32" id="termo_id" name="termo_id" value=""></td></tr>
+                <tr><td>РћРїРёСЃР°РЅРёРµ Р»РёРЅРёРё (РџР°РјСЏС‚РєР°)</td><td><input type="text" maxlength="15" id="termo_name" name="termo_name" value=""></td></tr>
+                <tr><td>ID РґР°С‚С‡РёРєР°</td><td><input type="text" maxlength="40" id="termo_id" name="termo_id" value="" disabled></td></tr>
             </table>
             <div class="modal_buttons">
-                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
-                <button type="button" onclick="save_modal_data()">Сохранить изменения</button>
+                <button type="button" onclick="modal.style.display='none';">РћС‚РјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
+                <button type="button" onclick="save_modal_data()">РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
             </div>
         </form>
     </div>
@@ -133,7 +141,7 @@ window.onclick = function(event) {
 function edit_termo(el) {
     modal.style.display = "block";
     var termo_num = el.id.split('_')[1];
-    var title = "НАСТРОЙКИ ДАТЧИКА " + String(termo_num);
+    var title = "РќРђРЎРўР РћР™РљР Р”РђРўР§РРљРђ " + String(termo_num);
     getid("modal_title").innerHTML = title;
     getid("termo_num").value = termo_num;
     getid("termo_name").value = data[termo_num - 1].name;
@@ -150,16 +158,16 @@ data.forEach(function(termo, i) {
     var tempcell = row.insertCell(4);
     var settingscell = row.insertCell(5);
 
-    numcell.innerHTML = "Датчик " + String(i + 1);
+    numcell.innerHTML = "Р”Р°С‚С‡РёРє " + String(i + 1);
     namecell.innerHTML = termo.name;
     name_cell.innerHTML = '<input type="text" id="termo_name_' + String(i + 1) + '" name="termo_name" value="' + termo.name + '" readonly>';
     name_cell.style = 'display:none;'
     termo_id_cell.innerHTML = '<input type="text" id="termo_id_' + String(i + 1) + '" name="termo_id" value="' + termo.termo_id + '" readonly>';
     termo_id_cell.style = 'display:none;'
     tempcell.id = "termo_temp_" + String(i + 1);
-    tempcell.innerHTML = termo.temp == 65535 ? "Отказ" : "T= " + termo.temp / 10 + "&#176;C";
+    tempcell.innerHTML = termo.temp == 65535 ? "РћС‚РєР°Р·" : "T= " + termo.temp / 10 + "&#176;C";
     tempcell.style = "text-align:center;"
-    settingscell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_termo(this)">Настройка датчика ' + String(i + 1) + '</button>';
+    settingscell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_termo(this)">РќР°СЃС‚СЂРѕР№РєР° РґР°С‚С‡РёРєР° ' + String(i + 1) + '</button>';
 })
 
 function response() {
@@ -167,20 +175,25 @@ function response() {
     d=this.responseText;
     if(this.status!=200 || !d || d=='') { err.visibility="visible"; return; }
     err.visibility="hidden";
-    d=eval(d);
-    for(i in d) {
-        frm._value[i].value=d[i].value;
-        frm._status[i].value=termo_status_txt[d[i].status];
+    console.log(d);
+    eval(d);
+    console.log(data);
+    for(i in data) {
+        //frm._value[i].value=d[i].value;
+        //frm._status[i].value=termo_status_txt[d[i].status];
+        console.log( data[i].temp / 10);
+        getid('termo_temp_' + (parseInt(i) + 1)).innerHTML = data[i].temp == 65535 ? "РћС‚РєР°Р·" : "T= " + data[i].temp / 10 + "&#176;C";
     }
 }
 
 function monitor() {
-    var req=new XMLHttpRequest();
+    var req = new XMLHttpRequest();
     req.open("GET","/termo_data.cgi",true);
     req.onload=response;
     req.timeout=5900;
     req.ontimeout=function(){getid('error').style.visibility="visible";};
     req.send();
+    //response();
 }
 
 setInterval(monitor,10000);

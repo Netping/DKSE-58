@@ -53,6 +53,7 @@ typedef struct
   int rx_channel;     ///< RMT channel to use for RX
   RingbufHandle_t rb; ///< Ring buffer handle
   int gpio;           ///< OneWireBus GPIO
+  int gpio_i;
   OneWireBus bus;     ///< OneWireBus instance
 } owb_rmt_driver_info;
 

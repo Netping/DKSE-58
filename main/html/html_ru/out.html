@@ -2,7 +2,7 @@
 <html><head>
 <meta http-equiv=Content-Type content="text/html; charset=utf-8">
 <meta charset="UTF-8"/>
-<title>Веб-интерфейс</title>
+<title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
 <link rel="stylesheet" href="index.css">
 <script src="out_get.cgi?add_devname_menu"></script>
 <!--script src="devname.cgi"></script-->
@@ -39,7 +39,7 @@ form td button[type="button"] {width:100%}
 </head>
 <body>
 <script>
-menu('Линии вывода');
+menu('Р›РёРЅРёРё РІС‹РІРѕРґР°');
 menu_adjust(menu_data);
 
 var lamp_color = ['white','red','orange','red','#00E600'];
@@ -100,22 +100,22 @@ function show_out_status() {
 <form name="frm" id="idfrm" method="post" action="error.html">
 <table id="edt_x_ref" class="paramtable">
 <caption class="send_button_container">
-<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div id="error" class="alert" style="float:left;visibility:hidden;">РќРµС‚ СЃРІСЏР·Рё СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј! Р”Р°РЅРЅС‹Рµ СѓСЃС‚Р°СЂРµР»Рё!</div>
 <div style="clear:both"></div>
 </caption>
-<tr><th style="text-align:center;" class="cpt" colspan="8">ЛИНИИ ВЫВОДА<th><tr>
+<tr><th style="text-align:center;" class="cpt" colspan="8">Р›РРќРР Р’Р«Р’РћР”Рђ<th><tr>
 <tr>
-<th>Выход</th>
-<th style="display:none;">Памятка</th>
-<th style="display:none;">Лог1.Расшифровка</th>
-<th style="display:none;">Лог0.Расшифровка</th>
-<th style="display:none;">Длительность импульса</th>
-<th style="display:none;">Полярность импульса</th>
+<th>Р’С‹С…РѕРґ</th>
+<th style="display:none;">РџР°РјСЏС‚РєР°</th>
+<th style="display:none;">Р›РѕРі1.Р Р°СЃС€РёС„СЂРѕРІРєР°</th>
+<th style="display:none;">Р›РѕРі0.Р Р°СЃС€РёС„СЂРѕРІРєР°</th>
+<th style="display:none;">Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РёРјРїСѓР»СЊСЃР°</th>
+<th style="display:none;">РџРѕР»СЏСЂРЅРѕСЃС‚СЊ РёРјРїСѓР»СЊСЃР°</th>
 
-<th>Памятка</th>
-<th colspan="4" style="text-align:center;">Управление</th>
-<th>Статус</th>
-<th>Настройка</th></tr>
+<th>РџР°РјСЏС‚РєР°</th>
+<th colspan="4" style="text-align:center;">РЈРїСЂР°РІР»РµРЅРёРµ</th>
+<th>РЎС‚Р°С‚СѓСЃ</th>
+<th>РќР°СЃС‚СЂРѕР№РєР°</th></tr>
 </tr>
 </table>
 </form>
@@ -129,27 +129,27 @@ function show_out_status() {
 <div id="modalSettings" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <p id="modal_title">НАСТРОЙКИ ВЫХОДНОЙ ЛИНИИ </p>
+        <p id="modal_title">РќРђРЎРўР РћР™РљР Р’Р«РҐРћР”РќРћР™ Р›РРќРР </p>
         <form id="ch_settings">
             <input type="text" style="display:none;" id="out_num" name="out_num" value="" readonly>
             <table class="modal_table">
-                <tr><td>Описание линии (Памятка)</td><td><input type="text" maxlength="32" id="out_name" name="out_name" value=""></td></tr>
-                <tr><td>Длительность импульса, мс</td><td><input type="text" maxlength="32" id="out_pulse_dur" name="out_pulse_dur" value=""></td></tr>
+                <tr><td>РџР°РјСЏС‚РєР° (РћРїРёСЃР°РЅРёРµ Р»РёРЅРёРё)</td><td><input type="text" maxlength="32" id="out_name" name="out_name" value=""></td></tr>
+                <tr><td>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ РёРјРїСѓР»СЊСЃР°, РјСЃ</td><td><input type="text" maxlength="32" id="out_pulse_dur" name="out_pulse_dur" value=""></td></tr>
                 <tr>
-                    <td>Полярность импульса</td>
+                    <td>РџРѕР»СЏСЂРЅРѕСЃС‚СЊ РёРјРїСѓР»СЊСЃР°</td>
                     <td><select id="out_pulse_polar" name="out_puls_polar">
-                            <option value="1">Включение</option>
-                            <option value="0">Выключение</option>
+                            <option value="1">Р’РєР»СЋС‡РµРЅРёРµ</option>
+                            <option value="0">Р’С‹РєР»СЋС‡РµРЅРёРµ</option>
                         </select>
                    </td>
                 </tr>
-                <tr><th align="left">Уровень на линии</th><th align="left">Расшифровка</th></tr>
-                <tr><td>Лог. 1</td><td><input type="text" maxlength="32" id="out_state_on_desc" name="out_state_on" value=""></td></tr>
-                <tr><td>Лог. 0</td><td><input type="text" maxlength="32" id="out_state_off_desc" name="out_state_off" value=""></td></tr>
+                <tr><th align="left">РЈСЂРѕРІРµРЅСЊ РЅР° Р»РёРЅРёРё</th><th align="left">Р Р°СЃС€РёС„СЂРѕРІРєР°</th></tr>
+                <tr><td>Р›РѕРі. 1</td><td><input type="text" maxlength="32" id="out_state_on_desc" name="out_state_on" value=""></td></tr>
+                <tr><td>Р›РѕРі. 0</td><td><input type="text" maxlength="32" id="out_state_off_desc" name="out_state_off" value=""></td></tr>
             </table>
             <div class="modal_buttons">
-                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
-                <button type="button" onclick="save_modal_data()">Сохранить изменения</button>
+                <button type="button" onclick="modal.style.display='none';">РћС‚РјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
+                <button type="button" onclick="save_modal_data()">РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
             </div>
         </form>
     </div>
@@ -172,7 +172,7 @@ window.onclick = function(event) {
 function edit_io(el) {
     modal.style.display = "block";
     var ch_num = el.id.split('_')[1];
-    var title = "НАСТРОЙКИ ВЫХОДНОЙ ЛИНИИ " + String(ch_num);
+    var title = "РќРђРЎРўР РћР™РљР Р’Р«РҐРћР”РќРћР™ Р›РРќРР " + String(ch_num);
     getid("modal_title").innerHTML = title;
     getid("out_num").value = ch_num;
     getid("out_name").value = data[ch_num - 1].name;
@@ -217,7 +217,7 @@ data.forEach(function(io, i) {
     var statuscell = row.insertCell(11);
     var settingscell = row.insertCell(12);
 
-    numcell.innerHTML = "Выход " + String(i + 1);
+    numcell.innerHTML = "Р’С‹С…РѕРґ " + String(i + 1);
     namecell.innerHTML = io.name;
     name_cell.innerHTML = '<input type="text" id="out_name_' + String(i + 1) + '" name="out_name" value="' + io.name + '" readonly>';
     name_cell.style = 'display:none;'
@@ -232,11 +232,11 @@ data.forEach(function(io, i) {
     pulse_polar_cell.style = 'display:none;'
     button_on_cell.innerHTML = '<button type="button" id="btn_on_ch_' + String(i + 1) + '" onclick="out_switch(' + i + ',2)">' + io.log1_desc + '</button>';
     button_off_cell.innerHTML = '<button type="button" id="btn_off_ch_' + String(i + 1) + '" onclick="out_switch(' + i + ',1)"">' + io.log0_desc + '</button>';
-    button_switch_cell.innerHTML = '<button type="button" id="btn_switch_ch_' + String(i + 1) + '" onclick="out_switch(' + i + ',3)"">Переключить</button>';
-    button_pulse_cell.innerHTML = '<button type="button" id="btn_pulse_ch_' + String(i + 1) + '" onclick="sendpulse(' + i + ')">Импульс</button>';
+    button_switch_cell.innerHTML = '<button type="button" id="btn_switch_ch_' + String(i + 1) + '" onclick="out_switch(' + i + ',3)"">РџРµСЂРµРєР»СЋС‡РёС‚СЊ</button>';
+    button_pulse_cell.innerHTML = '<button type="button" id="btn_pulse_ch_' + String(i + 1) + '" onclick="sendpulse(' + i + ')">РРјРїСѓР»СЊСЃ</button>';
     statuscell.id = "out_status_ch_" + String(i + 1);
     statuscell.style = "text-align:center;"
-    settingscell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_io(this)">Настройка линии ' + String(i + 1) + '</button>';
+    settingscell.innerHTML = '<button type="button" id="ch_' + String(i + 1) + '" onclick="edit_io(this)">РќР°СЃС‚СЂРѕР№РєР° РІС‹С…РѕРґР° в„– ' + String(i + 1) + '</button>';
 })
 
 show_out_status();

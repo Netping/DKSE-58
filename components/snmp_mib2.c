@@ -39,7 +39,7 @@
  */
 
 #include "lwip/apps/snmp_opts.h"
-
+#include "../components/lwipopts.h"
 #if LWIP_SNMP && SNMP_LWIP_MIB2 /* don't build if not configured for use in lwipopts.h */
 
 #if !LWIP_STATS
@@ -90,6 +90,7 @@ extern const struct snmp_tree_node snmp_mib2_ip_root;
 static const struct snmp_node *const mib2_nodes[] = {
   &snmp_mib2_system_node.node.node,
   &snmp_mib2_interface_root.node,
+  //&interfaces_Table.node,
 #if LWIP_ARP && LWIP_IPV4
   &snmp_mib2_at_root.node,
 #endif /* LWIP_ARP && LWIP_IPV4 */

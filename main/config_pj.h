@@ -1,7 +1,7 @@
 /*
  * config_pj.h
  *
- *  Created on: 19 окт. 2021 г.
+ *  Created on: 19 пїЅпїЅпїЅ. 2021 пїЅ.
  *      Author: ivanov
  */
 
@@ -10,7 +10,7 @@
 
 //*****************************************Main config*************************************************
 #define Platform 58
-#define rev 0
+#define rev 6
 #define Assembly 0
 #define Bild 0
 
@@ -22,16 +22,21 @@
 #define DEF_DHCP 0
 //#define OUT_POW_EN 4
 #define size_1k_buff 24
-
-#define NTP_APDATE 20
+#define pin_def 35
+#define NTP_UPDATE 20
 
 //*****************************************1wire termo  port*******************************************
-#define MAIN_APP_OWB_H_ 0
+#define MAIN_APP_OWB_H_ 1
 
 #if  MAIN_APP_OWB_H_ == 1
-
+#define max_sensor 3
 #include "..\main\termo\app_owb.h"
-#define OW_DEBUG 1
+
+//#define OW_DEBUG 0
+//#define PHY_DEBUG 1
+
+
+
 #endif
 
 
@@ -52,11 +57,11 @@
 
 
 
-#define out_port_n 3
+#define out_port_n 2
 
 #define P_O0 14
 #define P_O1 12
-#define P_O2 4
+//#define P_O2 4
 
 
 //*****************************************SMTP OUTPUT*************************************************

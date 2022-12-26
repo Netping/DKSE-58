@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv=Content-Type content="text/html; charset=utf-8">
     <meta charset="UTF-8"/>
-    <title>Веб-интерфейс</title>
+    <title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
     <link rel="stylesheet" href="index.css">
     <script src="notify_get.cgi"></script>
     <!--script src="devname.cgi"></script-->
@@ -40,7 +40,7 @@
   <body>
 
 <script>
-menu('Уведомления');
+menu('РЈРІРµРґРѕРјР»РµРЅРёСЏ');
 menu_adjust(menu_data);
 
 function getid(a) { return document.getElementById(a); }
@@ -113,20 +113,20 @@ function save_modal_data(el) {
         <form name="frm" id="idfrm" method="post" action="error.html">
           <table id="edt_x_ref" class="paramtable_notify">
             <caption class="send_button_container">
-              <div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+              <div id="error" class="alert" style="float:left;visibility:hidden;">РќРµС‚ СЃРІСЏР·Рё СЃ СѓСЃС‚СЂРѕР№СЃС‚РІРѕРј! Р”Р°РЅРЅС‹Рµ СѓСЃС‚Р°СЂРµР»Рё!</div>
               <div style="clear:both"></div>
             </caption>
-            <tr><th style="text-align:center;" class="cpt" colspan="8">УВЕДОМЛЕНИЯ<th><tr>
+            <tr><th style="text-align:center;" class="cpt" colspan="8">РЈР’Р•Р”РћРњР›Р•РќРРЇ<th><tr>
             <tr>
-              <!--th>Уведомление</th-->
-              <th>Вкл/выкл</th>
-              <th>Памятка</th>
-              <th>Сигнал</th>
-              <th>Метод</th>
-              <th colspan="2">Настройка</th>
+              <!--th>РЈРІРµРґРѕРјР»РµРЅРёРµ</th-->
+              <th>Р’РєР»/РІС‹РєР»</th>
+              <th>РџР°РјСЏС‚РєР°</th>
+              <th>РЎРёРіРЅР°Р»</th>
+              <th>РњРµС‚РѕРґ</th>
+              <th colspan="2">РќР°СЃС‚СЂРѕР№РєР°</th>
             </tr>
           </table>
-          <button class="createbtn" type="button" onclick="create_n(this)">Добавить</button>
+          <button class="createbtn" type="button" onclick="create_n(this)">Р”РѕР±Р°РІРёС‚СЊ</button>
         </form>
 
       </div>
@@ -139,26 +139,26 @@ function save_modal_data(el) {
       <div id="modalSettings" class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
-          <p id="modal_title">НАСТРОЙКИ УВЕДОМЛЕНИЯ </p>
+          <p id="modal_title">РќРђРЎРўР РћР™РљР РЈР’Р•Р”РћРњР›Р•РќРРЇ </p>
           <form id="n_settings">
             <input type="text" style="display:none;" id="n_num" name="n_num" value="" readonly>
             <input type="text" style="display:none;" id="mode" name="mode" value="" readonly>
             <table class="modal_table">
-                <tr><td>Наименование уведомления (Памятка)</td><td><input type="text" maxlength="64" id="n_name" name="n_name" value="Уведомление"></td></tr>
+                <tr><td>РџР°РјСЏС‚РєР° (РќР°РёРјРµРЅРѕРІР°РЅРёРµ СѓРІРµРґРѕРјР»РµРЅРёСЏ)</td><td><input type="text" maxlength="64" id="n_name" name="n_name" value="РЈРІРµРґРѕРјР»РµРЅРёРµ"></td></tr>
                 <tr>
-                  <td>Источник</td>
+                  <td>РСЃС‚РѕС‡РЅРёРє</td>
                   <td><select id="n_signal" name="n_signal" required></select></td>
                 <tr>
-                  <td>Метод</td>
+                  <td>РњРµС‚РѕРґ</td>
                   <td><select id="n_method" name="n_method" required></select></td>
                 </tr>
-                <tr><td>Выражение</td><td><input type="text" maxlength="128" id="n_expr" name="n_expr" value=""></td></tr>
-                <tr><td>Текст сообщения</td><td><input type="text" maxlength="255" id="n_text" name="n_text" value="Текст сообщения"></td></tr>
-                <tr><td>Кому</td><td><input type="text" maxlength="64" id="n_sendto" name="n_sendto" value="Адресат"></td></tr>
+                <tr><td>Р’С‹СЂР°Р¶РµРЅРёРµ</td><td><input type="text" maxlength="128" id="n_expr" name="n_expr" value=""></td></tr>
+                <tr><td>РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ</td><td><input type="text" maxlength="255" id="n_text" name="n_text" value="РўРµРєСЃС‚ СЃРѕРѕР±С‰РµРЅРёСЏ"></td></tr>
+                <tr><td>РљРѕРјСѓ</td><td><input type="text" maxlength="64" id="n_sendto" name="n_sendto" value="РђРґСЂРµСЃР°С‚"></td></tr>
             </table>
             <div class="modal_buttons">
-                <button type="button" onclick="modal.style.display='none';">Отменить изменения</button>
-                <button type="button" onclick="save_modal_data(this)">Сохранить изменения</button>
+                <button type="button" onclick="modal.style.display='none';">РћС‚РјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
+                <button type="button" onclick="save_modal_data(this)">РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ</button>
             </div>
           </form>
         </div>
@@ -197,18 +197,18 @@ function create_n(el) {
     });
     modal.style.display = "block";
     var n_num = data.length + 1;
-    var title = "СОЗДАТЬ УВЕДОМЛЕНИЕ";
+    var title = "РЎРћР—Р”РђРўР¬ РЈР’Р•Р”РћРњР›Р•РќРР•";
     getid("modal_title").innerHTML = title;
     getid("mode").value = 'create';
     getid("n_num").value = n_num;
-    getid("n_name").value = 'Уведомление';
+    getid("n_name").value = 'РЈРІРµРґРѕРјР»РµРЅРёРµ';
     signal_select.options.selectedIndex = 0;
     method_select.options.selectedIndex = 0;
     //getid("n_signal").value = '';
     //getid("n_method").value = '';
     getid("n_expr").value = '';
-    getid("n_text").value = 'Текст уведомления';
-    getid("n_sendto").value = 'Адрес(а)';
+    getid("n_text").value = 'РўРµРєСЃС‚ СѓРІРµРґРѕРјР»РµРЅРёСЏ';
+    getid("n_sendto").value = 'РђРґСЂРµСЃ(Р°)';
 }
 
 function edit_n(el) {
@@ -230,7 +230,7 @@ function edit_n(el) {
     });
     modal.style.display = "block";
     var n_num = el.id.split('_')[1];
-    var title = "НАСТРОЙКИ УВЕДОМЛЕНИЯ " + String(n_num);
+    var title = "РќРђРЎРўР РћР™РљР РЈР’Р•Р”РћРњР›Р•РќРРЇ " + String(n_num);
     getid("modal_title").innerHTML = title;
     getid("mode").value = 'edit';
     getid("n_num").value = n_num;
@@ -247,7 +247,7 @@ function change_active(el) {
 }
 
 function delete_n(el) {
-    var isdel = confirm("Вы дейтствительно хотите удалить уведомление?");
+    var isdel = confirm("Р’С‹ РґРµР№С‚СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ СѓРІРµРґРѕРјР»РµРЅРёРµ?");
     if(isdel) {
         var n_num = el.id.split('_')[2];
         data.splice(n_num -1, 1);
@@ -288,7 +288,7 @@ function add_table_row(table, n_num, n_active, n_name, n_signal, n_method, n_exp
     var sendto_cell = row.insertCell(9);
     var settingscell = row.insertCell(10);
     var deletecell = row.insertCell(11);
-    // numcell.innerHTML = "Уведомление " + String(n_num);
+    // numcell.innerHTML = "РЈРІРµРґРѕРјР»РµРЅРёРµ " + String(n_num);
     var active = n_active ? 'checked' : '';
     active_cell.innerHTML = '<input type="checkbox" id="n_active_' + String(n_num) + '" name="n_active" ' + active + ' onchange="change_active(this)">';
     namecell.innerHTML = n_name;
@@ -311,8 +311,8 @@ function add_table_row(table, n_num, n_active, n_name, n_signal, n_method, n_exp
     text_cell.style = 'display:none;';
     sendto_cell.innerHTML = '<input type="text" id="n_sendto_' + String(n_num) + '" name="n_sendto" value="' + n_sendto + '" readonly>';
     sendto_cell.style = 'display:none;';
-    settingscell.innerHTML = '<button type="button" id="n_' + String(n_num) + '" onclick="edit_n(this)">Настроить</button>';
-    deletecell.innerHTML = '<button class="delbtn" type="button" id="n_delete_' + String(n_num) + '" onclick="delete_n(this)">Удалить</button>';
+    settingscell.innerHTML = '<button type="button" id="n_' + String(n_num) + '" onclick="edit_n(this)">РќР°СЃС‚СЂРѕРёС‚СЊ</button>';
+    deletecell.innerHTML = '<button class="delbtn" type="button" id="n_delete_' + String(n_num) + '" onclick="delete_n(this)">РЈРґР°Р»РёС‚СЊ</button>';
 }
       </script>
 

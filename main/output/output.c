@@ -1,7 +1,7 @@
 /*
  * output.c
  *
- *  Created on: 20 апр. 2022 г.
+ *  Created on: 20 пїЅпїЅпїЅ. 2022 пїЅ.
  *      Author: ivanov
  */
 #include "config_pj.h"
@@ -18,11 +18,11 @@
 
 #define get_name(x) #x
 
-uint8_t PORT_O[out_port_n] = { P_O0, P_O1, P_O2 };
+uint8_t PORT_O[out_port_n] = { P_O0, P_O1 };
 
 output_port_t OUT_PORT[out_port_n];
 
-uint8_t  polar_snmp[out_port_n];
+uint8_t polar_snmp[out_port_n];
 
 static void char2_to_hex(char *in, uint8_t *out, uint32_t len) {
 	//	Bcd_To_Hex((unsigned char *)in, (unsigned char *)out, len);
@@ -75,28 +75,33 @@ static uint8_t read_mess_smtp(char *in, uint8_t *out) {
 	return len;
 }
 void set_outport(uint8_t index, uint8_t sost) {
-	if (sost != 3) {
+
 		if (sost == 1) {
 			OUT_PORT[index].sost = 0;
 			OUT_PORT[index].type_logic = 0;
-		}
-		if (sost == 2) {
+		}else if (sost == 2) {
 			OUT_PORT[index].sost = 1;
 			OUT_PORT[index].type_logic = 0;
-		}
-		if (sost == 4) {
+		}else if (sost == 3) {
+			if (OUT_PORT[index].sost==1)
+			{
 			OUT_PORT[index].sost = 0;
-			OUT_PORT[index].type_logic = 3;
-		}
-	} else {
+			OUT_PORT[index].type_logic = 0;
+			}
+			else
+			{
+			   OUT_PORT[index].sost = 1;
+			   OUT_PORT[index].type_logic = 0;
+			}
+		} else {
 //		if (OUT_PORT[index].realtime == 0) {
 		OUT_PORT[index].sost = 1;
 		OUT_PORT[index].type_logic = 3;
 //		} else {
 //			OUT_PORT[index].sost = 0;
 //			OUT_PORT[index].type_logic = 3;
-//		}
-	}
+		}
+
 
 	OUT_PORT[index].aflag = 1;
 }
@@ -126,7 +131,7 @@ static esp_err_t out_get_cgi_handler(httpd_req_t *req) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 		gpio_status = gpio_status | ((OUT_PORT[ct_s].realtime & 0x01) << ct_s);
 	}
-	printf("output sost=%d\n\r", gpio_status);
+//	printf("output sost=%d\n\r", gpio_status);
 
 	if ((req->uri[13] == 'a') & (req->uri[14] == 'd') & (req->uri[15] == 'd')) {
 		sprintf(buf,
@@ -216,6 +221,7 @@ static esp_err_t out_switch_post_handler(httpd_req_t *req) {
 
 	}
 	char2_to_hex((char*) (buf + 5), (uint8_t*) buf_temp, 5);
+	printf("output%d sost=%d\n\r",buf_temp[0],buf_temp[1]);
 	set_outport((uint8_t) buf_temp[0], (uint8_t) buf_temp[1]);
 
 //	nvs_flags.data_param = 1;
@@ -265,7 +271,7 @@ static esp_err_t out_set_post_handler(httpd_req_t *req) {
 //				memset(buf_temp, 0, 256);
 //		}
 //
-
+	printf("output set post \n\r");
 	for (ct = 0; ct < out_port_n; ct++) {
 
 		len = read_mess_smtp((char*) (buf + ct * 210 + 5), (uint8_t*) buf_temp);
@@ -347,7 +353,7 @@ static esp_err_t out_set_pulse_post_handler(httpd_req_t *req) {
 	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
 
 	}
-
+	printf("output set pulse post\n\r");
 //	if (buf[6] == 0x31) {
 	char2_to_hex((char*) (buf + 7), (uint8_t*) buf_temp, 2);
 	OUT_PORT[(buf[6] - 0x30)].delay = ((buf_temp[1] << 8) | (buf_temp[0]));
@@ -356,7 +362,7 @@ static esp_err_t out_set_pulse_post_handler(httpd_req_t *req) {
 	//	reple_to_save.event_cfg.canal = 1;
 	//	reple_to_save.event_cfg.source = WEB;
 	//	reple_to_save.dicr = 1;
-	set_outport((buf[6] - 0x30), 3);
+	set_outport((buf[6] - 0x30), 4);
 //		OUT_PORT[1].sost = 1;
 //		OUT_PORT[1].type_logic = 3;
 //		OUT_PORT[1].aflag = 1;
@@ -405,17 +411,18 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 		for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 			sprintf(buf_temp, "%d", ct_s);
-
-			if ((ct_s == (req->uri[12] - 0x30)))
+			if(req->uri[12]>0x30)
+			{
+			if ((ct_s == (req->uri[12] - 0x31)))
 			/*&& ((strlen(req->uri) - 12) == 3))*/{
 
 				if (req->uri[15] != ',') {
 					if (req->uri[14] != 'f') {
 						sprintf(buf, "out_result('ok')");
-						printf("\n\rct_s %d %d\n\r", (req->uri[12] - 0x30),
+						printf("\n\rct_s %d %d\n\r", (req->uri[12] - 0x31),
 								(req->uri[14] - 0x30));
 
-						set_outport((uint8_t) (req->uri[12] - 0x30),
+						set_outport((uint8_t) (req->uri[12] - 0x31),
 								(uint8_t) 1 + (req->uri[14] - 0x30));
 
 						printf("\n\rhook set %d %s\n\r", ct_s, req->uri);
@@ -423,13 +430,13 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 					}
 					if (req->uri[14] == 'f') {
 						sprintf(buf, "out_result('ok')");
-						printf("\n\rct_s %d %d\n\r", (req->uri[12] - 0x30),
+						printf("\n\rct_s %d %d\n\r", (req->uri[12] - 0x31),
 								(req->uri[14] - 0x30));
-						if (OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].realtime
+						if (OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].realtime
 								== 0) {
-							set_outport((uint8_t) (req->uri[12] - 0x30), 2);
+							set_outport((uint8_t) (req->uri[12] - 0x31), 2);
 						} else {
-							set_outport((uint8_t) (req->uri[12] - 0x30), 1);
+							set_outport((uint8_t) (req->uri[12] - 0x31), 1);
 
 						}
 
@@ -440,41 +447,50 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 				} else {
 
 					if (req->uri[14] == '1') {
-						printf("\n\r17_18 %x %x \n\r", req->uri[17],req->uri[18]);
+						printf("\n\r17_18 %x %x \n\r", req->uri[17],
+								req->uri[18]);
 						if (req->uri[17] == 0) {
 
-							OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
+							OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay =
 									(req->uri[16] - 0x30) * 1000;
-							printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
-							set_outport((uint8_t) (req->uri[12] - 0x30), 3);
+							printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s,
+									OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay,
+									req->uri[16], req->uri[17]);
+							set_outport((uint8_t) (req->uri[12] - 0x31), 3);
 							sprintf(buf, "out_result('ok')");
 							fault = 0;
 						} else {
 							if (req->uri[18] == 0) {
-								OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
+								OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay =
 										((req->uri[16] - 0x30) * 10
 												+ (req->uri[17] - 0x30)) * 1000;
-								printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
-								set_outport((uint8_t) (req->uri[12] - 0x30), 3);
+								printf("\n\rhook pulse3 %d %d %c %c\n\r", ct_s,
+										OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay,
+										req->uri[16], req->uri[17]);
+								set_outport((uint8_t) (req->uri[12] - 0x31), 3);
 								sprintf(buf, "out_result('ok')");
 								fault = 0;
 							}
 						}
 					} else {
 						if (req->uri[17] == 0) {
-							OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
+							OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay =
 									(req->uri[16] - 0x30) * 1000;
-							printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
-							set_outport((uint8_t) (req->uri[12] - 0x30), 4);
+							printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s,
+									OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay,
+									req->uri[16], req->uri[17]);
+							set_outport((uint8_t) (req->uri[12] - 0x31), 4);
 							sprintf(buf, "out_result('ok')");
 							fault = 0;
 						} else {
-							if (req->uri[18] ==0) {
-								OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay =
+							if (req->uri[18] == 0) {
+								OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay =
 										((req->uri[16] - 0x30) * 10
 												+ (req->uri[17] - 0x30)) * 1000;
-								printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s, OUT_PORT[(uint8_t) (req->uri[12] - 0x30)].delay, req->uri[16],req->uri[17]);
-								set_outport((uint8_t) (req->uri[12] - 0x30), 4);
+								printf("\n\rhook pulse4 %d %d %c %c\n\r", ct_s,
+										OUT_PORT[(uint8_t) (req->uri[12] - 0x31)].delay,
+										req->uri[16], req->uri[17]);
+								set_outport((uint8_t) (req->uri[12] - 0x31), 4);
 								sprintf(buf, "out_result('ok')");
 								fault = 0;
 							}
@@ -485,7 +501,7 @@ static esp_err_t out_web1_handler(httpd_req_t *req) {
 				}
 
 			}
-
+			}
 //			if (((buf_temp[0]-0x30) == (req->uri[strlen(req->uri) - 2]) - 0x30)
 //					&& ((buf_temp[1]-0x30) == (req->uri[strlen(req->uri) - 1]) - 0x30)
 //					&& ((strlen(req->uri) - 10) == 2)) {
@@ -547,7 +563,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 	switch (output_reply->type_event) {
 
 	case OUT_START:
-		sprintf(out_small, "Старт модуля выходов\n\r");
+		sprintf(out_small, "Старт модуля выходов v%d.%d\n\r",out_ver,out_rev);
 		break;
 
 	case OUT_CLRE:
@@ -560,7 +576,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 		break;
 	case OUT_SETT:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
-				"Изменение настроек");
+				"Изменены настройки модуля");
 		break;
 	case OUT_ERR:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
@@ -569,7 +585,7 @@ void log_swich_out(char *out, log_reple_t *output_reply) {
 		break;
 	default:
 		sprintf(out_small, "%s %s\n\r", OUT_PORT[output_reply->line].name,
-				"Ошибка журнала");
+				"Неизвестное событие");
 	}
 	strcat(out, out_small);
 }
@@ -624,15 +640,17 @@ void output_port(void *pvParameters) {
 	log_start_out();
 	for (uint8_t ct = 0; ct < out_port_n; ct++) {
 		//	FW_data.gpio.OUT_PORT[ct].delay = 3000;
+		gpio_iomux_out(PORT_O[ct], 2, 1);
 		gpio_set_direction(PORT_O[ct], GPIO_MODE_OUTPUT);
 		OUT_PORT[ct].S_gpio_port = xSemaphoreCreateMutex();
 		xSemaphoreGive(OUT_PORT[ct].S_gpio_port);
 	}
 
 	while (1) {
-	//	printf("OUT test \n\r");
+		//	printf("OUT test \n\r");H
 		for (uint8_t ct = 0; ct < out_port_n; ct++) {
-		//	printf("OUT%d=%d\n\r",ct,OUT_PORT[ct].sost);
+//			printf("OUT%d=%d\n\r",ct,OUT_PORT[ct].sost);
+//			printf("OUT%d_REALT=%d\n\r",ct,OUT_PORT[ct].realtime);
 			if (xSemaphoreTake(OUT_PORT[ct].S_gpio_port,
 					(TickType_t ) 100) == pdTRUE) {
 
@@ -643,26 +661,25 @@ void output_port(void *pvParameters) {
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							vTaskDelay(OUT_PORT[ct].delay / portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 1);
 
-
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							OUT_PORT[ct].type_logic = 0;
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							vTaskDelay(OUT_PORT[ct].delay / portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 							OUT_PORT[ct].type_logic = 0;
 
 						}
@@ -673,13 +690,13 @@ void output_port(void *pvParameters) {
 							gpio_set_level(PORT_O[ct], 0);
 
 							OUT_PORT[ct].realtime = 0;
-				//			log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 
 							OUT_PORT[ct].count++;
 							OUT_PORT[ct].realtime = 1;
-						//	log_out_event_cntl(&(OUT_PORT[ct]), ct);
+							log_out_event_cntl(&(OUT_PORT[ct]), ct);
 
 						}
 					}
@@ -702,238 +719,141 @@ esp_err_t save_data_output(void) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_d%d;", ct_s);
+		sprintf(name, "gpio_out_d%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].delay);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash1-%d", err, ct_s);
+		}
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_p%d;", ct_s);
+		sprintf(name, "gpio_out_p%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].polar_pulse);
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash2-%d", err, ct_s);
+		}
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_type_logic_%d;", ct_s);
+		sprintf(name, "gpio_t_log_%d", ct_s);
 		err = err
 				| nvs_set_u16(nvs_data_handle, (char*) name,
 						OUT_PORT[ct_s].type_logic);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash3-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_name_%d;", ct_s);
+		sprintf(name, "gpio_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].name), 32);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash4-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_set_name_%d;", ct_s);
+		sprintf(name, "gpio_s_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].set_name), 32);
-
+		if (err != ERR_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash5-%d", err, ct_s);
+		}
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_clr_name_%d;", ct_s);
+		sprintf(name, "gpio_c_name_%d", ct_s);
 		err = err
 				| nvs_set_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].clr_name), 32);
+		if (err != ESP_OK) {
+			ESP_LOGW("OUT_SAVE", "Error %X save data to flash6-%d", err, ct_s);
+		}
 	}
-	//              uint8_t ALL_EVENT;
-//	err = err
-//			| nvs_set_u8(nvs_data_handle, get_name(ALL_EVENT),
-//					FW_data.gpio.ALL_EVENT);
-//	//      	  	uint8_t RISE_L[out_port_n+in_port_n];
-//	//	uint8_t 	lens = 4;
-//
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(RISE_L),
-//					FW_data.gpio.RISE_L, 4);
-//	//      	  	uint8_t RISE_SL[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(RISE_SL),
-//					FW_data.gpio.RISE_SL, 4);
-//	//      	  	uint8_t RISE_E[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(RISE_E),
-//					FW_data.gpio.RISE_E, 4);
-//	//      	  	uint8_t RISE_SM[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(RISE_SM),
-//					FW_data.gpio.RISE_SM, 4);
-//	//      	  	uint8_t RISE_SN[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(RISE_SN),
-//					FW_data.gpio.RISE_SN, 4);
-//	//
-//	//      	  	uint8_t FALL_L[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(FALL_L),
-//					FW_data.gpio.FALL_L, 4);
-//	//      	  	uint8_t FALL_SL[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(FALL_SL),
-//					FW_data.gpio.FALL_SL, 4);
-//	//      	  	uint8_t FALL_E[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(FALL_E),
-//					FW_data.gpio.FALL_E, 4);
-//	//      	  	uint8_t FALL_SM[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(FALL_SM),
-//					FW_data.gpio.FALL_SM, 4);
-//	//      	    uint8_t FALL_SN[out_port_n+in_port_n];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(FALL_SN),
-//					FW_data.gpio.FALL_SN, 4);
-//	//
-//	//      	    uint8_t SET_COLOR;
-//	err = err
-//			| nvs_set_u8(nvs_data_handle, get_name(SET_COLOR),
-//					FW_data.gpio.SET_COLOR);
-//	//      	    uint8_t CLR_COLOR;
-//	err = err
-//			| nvs_set_u8(nvs_data_handle, get_name(CLR_COLOR),
-//					FW_data.gpio.CLR_COLOR);
-//	//      	    char mess_low[16];
-//	//lens = 16;
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(mess_low),
-//					FW_data.gpio.mess_low, 16);
-//	//      	    char mess_hi[16];
-//	err = err
-//			| nvs_set_blob(nvs_data_handle, get_name(mess_hi),
-//					FW_data.gpio.mess_hi, 16);
-//	//
-//	//      	    uint8_t reactiv;
-//	err = err
-//			| nvs_set_u8(nvs_data_handle, get_name(reactiv),
-//					FW_data.gpio.reactiv);
-//	//      	    uint8_t cicle_t;
-//	err = err
-//			| nvs_set_u8(nvs_data_handle, get_name(cicle_t),
-//					FW_data.gpio.cicle_t);
+
+
 
 	return err;
 }
 
 esp_err_t load_data_output(void) {
 	esp_err_t err = 0;
-	uint8_t lens = 16;
+	size_t lens = 16;
 	uint8_t ct_s;
 	char name[64];
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_d%d;", ct_s);
+		sprintf(name, "gpio_out_d%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].delay);
 
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash1-%d", name,
+					err, ct_s);
+		}
+
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_out_p%d;", ct_s);
+		sprintf(name, "gpio_out_p%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].polar_pulse);
 
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash2-%d", name,
+					err, ct_s);
+		}
+
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_type_logic_%d;", ct_s);
+		sprintf(name, "gpio_t_log_%d", ct_s);
 		err = err
 				| nvs_get_u16(nvs_data_handle, (char*) name,
 						&OUT_PORT[ct_s].type_logic);
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash3-%d", name,
+					err, ct_s);
+		}
 		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_name_%d;", ct_s);
+		sprintf(name, "gpio_name_%d", ct_s);
+//		ESP_LOGW("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+//							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash4-%d", name,
+					err, ct_s);
+		}
+
+		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_set_name_%d;", ct_s);
+		sprintf(name, "gpio_s_name_%d", ct_s);
+//		ESP_LOGE("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+//							err, ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].set_name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash5-%d", name,
+					err, ct_s);
+		}
+		lens = 32;
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "gpio_clr_name_%d;", ct_s);
+		sprintf(name, "gpio_c_name_%d", ct_s);
 		err = err
 				| nvs_get_blob(nvs_data_handle, (char*) name,
 						&(OUT_PORT[ct_s].clr_name), &lens);
+		if (err != ERR_OK) {
+			ESP_LOGE("OUT_READ", "Error %s=%x read data to flash6-%d", name,
+					err, ct_s);
+		}
 	}
 
-//	lens = 16;
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(mess_low),
-//					FW_data.gpio.mess_low, &lens);
-//	//      	    char mess_hi[16];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(mess_hi),
-//					FW_data.gpio.mess_hi, &lens);
-	//
-//	//      	    uint8_t reactiv;
-//	err = err
-//			| nvs_get_u8(nvs_data_handle, get_name(reactiv),
-//					&FW_data.gpio.reactiv);
-//	//      	    uint8_t cicle_t;
-//	err = err
-//			| nvs_get_u8(nvs_data_handle, get_name(cicle_t),
-//					&FW_data.gpio.cicle_t);
-//	//              uint8_t ALL_EVENT;
-//	err = err
-//			| nvs_get_u8(nvs_data_handle, get_name(ALL_EVENT),
-//					&FW_data.gpio.ALL_EVENT);
-//	//      	  	uint8_t RISE_L[out_port_n+in_port_n];
-//	lens = out_port_n + in_port_n;
-//
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(RISE_L),
-//					FW_data.gpio.RISE_L, &lens);
-//	//      	  	uint8_t RISE_SL[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(RISE_SL),
-//					FW_data.gpio.RISE_SL, &lens);
-//	//      	  	uint8_t RISE_E[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(RISE_E),
-//					FW_data.gpio.RISE_E, &lens);
-//	//      	  	uint8_t RISE_SM[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(RISE_SM),
-//					FW_data.gpio.RISE_SM, &lens);
-//	//      	  	uint8_t RISE_SN[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(RISE_SN),
-//					FW_data.gpio.RISE_SN, &lens);
-//	//
-//	//      	  	uint8_t FALL_L[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(FALL_L),
-//					FW_data.gpio.FALL_L, &lens);
-//	//      	  	uint8_t FALL_SL[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(FALL_SL),
-//					FW_data.gpio.FALL_SL, &lens);
-//	//      	  	uint8_t FALL_E[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(FALL_E),
-//					FW_data.gpio.FALL_E, &lens);
-//	//      	  	uint8_t FALL_SM[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(FALL_SM),
-//					FW_data.gpio.FALL_SM, &lens);
-//	//      	    uint8_t FALL_SN[out_port_n+in_port_n];
-//	err = err
-//			| nvs_get_blob(nvs_data_handle, get_name(FALL_SN),
-//					FW_data.gpio.FALL_SN, &lens);
-//	//
-//	//      	    uint8_t SET_COLOR;
-//	err = err
-//			| nvs_get_u8(nvs_data_handle, get_name(SET_COLOR),
-//					&FW_data.gpio.SET_COLOR);
-//	//      	    uint8_t CLR_COLOR;
-//	err = err
-//			| nvs_get_u8(nvs_data_handle, get_name(CLR_COLOR),
-//					&FW_data.gpio.CLR_COLOR);
-//	//      	    char mess_low[16];
+
 
 	return err;
 
@@ -945,17 +865,17 @@ void load_def_output(void) {
 	for (ct_s = 0; ct_s < out_port_n; ct_s++) {
 
 		memset((uint8_t*) name, 0, 64);
-		sprintf(name, "Линия%d", ct_s);
+		sprintf(name, "Линия %d", ct_s);
 		memset((uint8_t*) &OUT_PORT[ct_s].name, 0, 32);
 		memcpy((uint8_t*) &OUT_PORT[ct_s].name, name, strlen(name));
 
 		memset((uint8_t*) &OUT_PORT[ct_s].clr_name, 0, 32);
-		memcpy((uint8_t*) &OUT_PORT[ct_s].clr_name, (uint8_t*) "Выключено",
-				sizeof("Выключено"));
+		memcpy((uint8_t*) &OUT_PORT[ct_s].clr_name, (uint8_t*) "Выключить",
+				sizeof("Выключить"));
 
 		memset((uint8_t*) &OUT_PORT[ct_s].set_name, 0, 32);
-		memcpy((uint8_t*) &OUT_PORT[ct_s].set_name, (uint8_t*) "Включено",
-				sizeof("Включено"));
+		memcpy((uint8_t*) &OUT_PORT[ct_s].set_name, (uint8_t*) "Включить",
+				sizeof("Включить"));
 
 		OUT_PORT[ct_s].delay = 5000;
 		OUT_PORT[ct_s].type_logic = 0;

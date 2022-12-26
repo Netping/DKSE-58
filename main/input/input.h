@@ -8,6 +8,10 @@
 #include "C:\Espressif\frameworks\esp-idf-v4.4.2\components\esp_http_server\include\esp_http_server.h"
 #ifndef MAIN_INPUT_INPUT_H_
 #define MAIN_INPUT_INPUT_H_
+
+#define in_ver 1
+#define in_rev 3
+
 #if MAIN_APP_IN_PORT == 1
 typedef struct
 {

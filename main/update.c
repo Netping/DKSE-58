@@ -1,7 +1,7 @@
 /*
  * update.c
  *
- *  Created on: 18 сент. 2021 г.
+ *  Created on: 18 пїЅпїЅпїЅпїЅ. 2021 пїЅ.
  *      Author: ivanov
  */
 
@@ -121,7 +121,7 @@ esp_err_t np_http_update_set(httpd_req_t *req)
      		ESP_LOGI(TAG, "Commanding reboot into %s", new_part->label);
      		httpd_resp_send(req, "", 0);
      		vTaskDelay(3 * configTICK_RATE_HZ);
-
+     		log_update_save_mess(UPD_GOOD);
      		esp_restart();
      	}
     }
@@ -192,8 +192,9 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
 //	reple_to_save.dicr = 1;
 
 
-	 vTaskDelay(3000 / portTICK_PERIOD_MS);
-
+	vTaskDelay(3000 / portTICK_PERIOD_MS);
+	log_log_save_mess(LOG_RESTART);
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
     esp_restart();
 //    char buf[128];
 //    sprintf(buf,
@@ -233,12 +234,12 @@ const httpd_uri_t np_html_uri_main = {
 	(void*)&_html_page_index_html
 };
 
-const httpd_uri_t np_html_uri_wdog = {
-	"/wdog.html",
-	HTTP_GET,
-	np_http_get_handler,
-	(void*)&_html_page_wdog_html
-};
+//const httpd_uri_t np_html_uri_wdog = {
+//	"/wdog.html",
+//	HTTP_GET,
+//	np_http_get_handler,
+//	(void*)&_html_page_wdog_html
+//};
 
 
 
@@ -250,10 +251,10 @@ const httpd_uri_t np_html_uri_setings = {
 	(void*)&_html_page_settings_html
 };
 
-const httpd_uri_t np_html_uri_sendmail = {
-	"/sendmail.html",
-	HTTP_GET,
-	np_http_get_handler,
-	(void*)&_html_page_sendmail_html
-};
+//const httpd_uri_t np_html_uri_sendmail = {
+//	"/sendmail.html",
+//	HTTP_GET,
+//	np_http_get_handler,
+//	(void*)&_html_page_sendmail_html
+//};
 
